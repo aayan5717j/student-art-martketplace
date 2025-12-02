@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Topper Handwritten Notes - Student Art Hub</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header>
+<div class="container">
+<h1>Student Art Hub</h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="art.html">Art Showcase</a>
+<a href="books.html">Book Exchange</a>
+<a href="sketches.html">Custom Sketches</a>
+<a href="notes.html">Handwritten Notes</a>
+</nav>
+</div>
+</header>
+
+<main class="container">
+<section>
+<h2>Topper Handwritten Notes</h2>
+<p>Affordable handwritten notes (₹2–₹5 per chapter). Ideal for quick revision.</p>
+
+<!-- Seller Upload Section -->
+<div id="uploadSection" style="display:none;">
+<h3>Upload Notes</h3>
+<input type="text" id="noteTitle" placeholder="Note Title">
+<input type="number" id="notePrice" placeholder="Price (₹2–₹5)">
+<select id="noteClass">
+<option value="">Select Class</option>
+<option value="1">Class 1</option>
+<option value="2">Class 2</option>
+<option value="3">Class 3</option>
+<option value="4">Class 4</option>
+<option value="5">Class 5</option>
+<option value="6">Class 6</option>
+<option value="7">Class 7</option>
+<option value="8">Class 8</option>
+<option value="9">Class 9</option>
+<option value="10">Class 10</option>
+<option value="11">Class 11</option>
+<option value="12">Class 12</option>
+</select>
+<button id="uploadBtn">Upload Note</button>
+</div>
+
+<!-- Search & Filter for Buyers -->
+<input type="text" id="searchInput" placeholder="Search notes by title">
+<select id="classFilter">
+<option value="">All Classes</option>
+<option value="1">Class 1</option>
+<option value="2">Class 2</option>
+<option value="3">Class 3</option>
+<option value="4">Class 4</option>
+<option value="5">Class 5</option>
+<option value="6">Class 6</option>
+<option value="7">Class 7</option>
+<option value="8">Class 8</option>
+<option value="9">Class 9</option>
+<option value="10">Class 10</option>
+<option value="11">Class 11</option>
+<option value="12">Class 12</option>
+</select>
+
+<div id="notesListings"></div>
+</section>
+</main>
+
+<!-- Cart Popup -->
+<div id="cart" style="position:fixed;top:80px;right:20px;width:250px;background:#fff;border:1px solid #ccc;padding:10px;display:none;z-index:1000;">
+<h3>Cart</h3>
+<ul id="cartItems"></ul>
+<strong>Total: ₹<span id="cartTotal">0</span></strong><br><br>
+<button id="checkoutBtn">Checkout</button>
+<button id="closeCart">Close</button>
+</div>
+<button id="openCart" style="position:fixed;top:20px;right:20px;z-index:1000;">🛒 Cart</button>
+
+<footer>
+<div class="container"><p>© 2025 Student Art Hub</p></div>
+</footer>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+  authDomain: "art-hub-77eb1.firebaseapp.com",
+  projectId: "art-hub-77eb1",
+  storageBucket: "art-hub-77eb1.appspot.com",
+  messagingSenderId: "1097170910592",
+  appId: "1:1097170910592:web:8590c10f6d0662d6881565"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+
+let notes = [];
+
+const uploadSection = document.getElementById('uploadSection');
+const notesListings = document.getElementById('notesListings');
+const uploadBtn = document.getElementById('uploadBtn');
+const searchInput = document.getElementById('searchInput');
+const classFilter = document.getElementById('classFilter');
+
+// Cart Elements
+const cart = [];
+const cartItems = document.getElementById('cartItems');
+const cartTotal = document.getElementById('cartTotal');
+const cartDiv = document.getElementById('cart');
+const openCartBtn = document.getElementById('openCart');
+const closeCartBtn = document.getElementById('closeCart');
+const checkoutBtn = document.getElementById('checkoutBtn');
+
+// Show upload section only for sellers
+onAuthStateChanged(auth, user=>{
+  if(user){
+    // TODO: fetch role from Firestore
+    const role = 'seller'; // replace with actual role fetch
+    if(role==='seller'){ uploadSection.style.display='block'; }
+  }
+});
+
+// Upload note
+uploadBtn.addEventListener('click', ()=>{
+  const title = document.getElementById('noteTitle').value;
+  const price = parseInt(document.getElementById('notePrice').value);
+  const cls = document.getElementById('noteClass').value;
+  if(!title || !price || !cls){ alert("Fill all fields"); return; }
+  notes.push({title,price,class:cls});
+  renderNotes(notes);
+  alert("Note uploaded!");
+});
+
+// Render notes
+function renderNotes(list){
+  notesListings.innerHTML='';
+  list.forEach(note=>{
+    const div = document.createElement('div');
+    div.style.border='1px solid #ccc';
+    div.style.padding='10px';
+    div.style.margin='10px';
+    div.style.borderRadius='10px';
+    div.innerHTML=`
+      <strong>${note.title}</strong><br>
+      Class: ${note.class}<br>
+      Price: ₹${note.price}<br>
+      <button onclick="addToCart('${note.title}',${note.price})">Buy</button>
+    `;
+    notesListings.appendChild(div);
+  });
+}
+
+// Search & Filter
+searchInput.addEventListener('input', filterNotes);
+classFilter.addEventListener('change', filterNotes);
+function filterNotes(){
+  const query = searchInput.value.toLowerCase();
+  const cls = classFilter.value;
+  renderNotes(notes.filter(note=>{
+    const matchesSearch = note.title.toLowerCase().includes(query);
+    const matchesClass = cls? note.class===cls : true;
+    return matchesSearch && matchesClass;
+  }));
+}
+
+// Cart Logic
+window.addToCart = function(name, price){
+  cart.push({name,price});
+  updateCartUI();
+  alert(name+" added to cart!");
+};
+
+function updateCartUI(){
+  cartItems.innerHTML='';
+  let total=0;
+  cart.forEach(item=>{
+    const li=document.createElement('li');
+    li.textContent=`${item.name} - ₹${item.price}`;
+    cartItems.appendChild(li);
+    total+=item.price;
+  });
+  cartTotal.textContent=total;
+}
+openCartBtn.addEventListener('click',()=>{ updateCartUI(); cartDiv.style.display='block'; });
+closeCartBtn.addEventListener('click',()=>{ cartDiv.style.display='none'; });
+
+// Razorpay Checkout
+checkoutBtn.addEventListener('click', ()=>{
+  if(cart.length===0){ alert("Cart empty!"); return; }
+  let totalAmount=cart.reduce((sum,item)=>sum+parseInt(item.price),0)*100;
+  const options={
+    key:"YOUR_RAZORPAY_KEY_HERE",
+    amount:totalAmount,
+    currency:"INR",
+    name:"Student Art Hub",
+    description:"Purchase",
+    handler:function(response){
+      alert("Payment Successful! ID: "+response.razorpay_payment_id);
+      cart.length=0; updateCartUI(); cartDiv.style.display='none';
+    },
+    theme:{color:"#3399cc"}
+  };
+  const rzp=new Razorpay(options);
+  rzp.open();
+});
+</script>
+<script src="script.js"></script>
+</body>
+</html>

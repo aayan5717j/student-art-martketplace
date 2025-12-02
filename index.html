@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Student Art Hub - Home</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header>
+<div class="container">
+<h1>Student Art Hub</h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="art.html">Art Showcase</a>
+<a href="books.html">Book Exchange</a>
+<a href="sketches.html">Custom Sketches</a>
+<a href="notes.html">Handwritten Notes</a>
+</nav>
+</div>
+</header>
+
+<main class="container">
+
+<section class="hero">
+<h2>Buy • Sell • Exchange — Student-made</h2>
+<p>Discover local student artworks, second-hand books, custom sketches, and topper notes at pocket-friendly prices.</p>
+</section>
+
+<!-- Login / Signup -->
+<section>
+<h2>Login / Signup</h2>
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+<select id="roleSelect">
+  <option value="buyer">Buyer</option>
+  <option value="seller">Seller</option>
+</select>
+<button id="signupBtn">Sign Up</button>
+<button id="loginBtn">Login</button>
+</section>
+
+</main>
+
+<footer>
+<div class="container">
+<p>© 2025 Student Art Hub — Built by Aryan</p>
+</div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+  authDomain: "art-hub-77eb1.firebaseapp.com",
+  projectId: "art-hub-77eb1",
+  storageBucket: "art-hub-77eb1.appspot.com",
+  messagingSenderId: "1097170910592",
+  appId: "1:1097170910592:web:8590c10f6d0662d6881565",
+  measurementId: "G-WGQWCTTD35"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Signup
+document.getElementById("signupBtn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const role = document.getElementById("roleSelect").value;
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = userCredential.user.uid;
+    await setDoc(doc(db,"users",uid),{role});
+    alert("Signup successful as " + role);
+  } catch(e){ alert(e.message); }
+});
+
+// Login
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth,email,password);
+    const uid = userCredential.user.uid;
+    const docSnap = await getDoc(doc(db,"users",uid));
+    const role = docSnap.data().role;
+    alert("Logged in as " + role);
+    // Redirect based on role if needed
+    window.location.href = "index.html";
+  } catch(e){ alert(e.message); }
+});
+</script>
+
+</body>
+</html>
