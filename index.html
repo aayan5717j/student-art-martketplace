@@ -1,103 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Student Art Hub - Home</title>
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Student Art Hub: Buy, sell, and exchange student-made art, books, sketches, and notes at affordable prices." />
+  <meta name="keywords" content="student art, marketplace, buy sell art, custom sketches, handwritten notes, book exchange" />
+  <meta property="og:title" content="Student Art Hub" />
+  <meta property="og:description" content="Discover local student artworks and more!" />
+  <meta property="og:image" content="https://aayan5717j.github.io/student-art-marketplace/images/logo.png" /> <!-- Replace with your image URL -->
+  <meta property="og:url" content="https://aayan5717j.github.io/student-art-marketplace/" />
+  <title>Student Art Hub - Home</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
 
-<header>
-<div class="container">
-<h1>Student Art Hub</h1>
-<nav>
-<a href="index.html">Home</a>
-<a href="art.html">Art Showcase</a>
-<a href="books.html">Book Exchange</a>
-<a href="sketches.html">Custom Sketches</a>
-<a href="notes.html">Handwritten Notes</a>
-</nav>
-</div>
-</header>
+  <header>
+    <div class="container">
+      <h1>Student Art Hub</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="art.html">Art Showcase</a>
+        <a href="books.html">Book Exchange</a>
+        <a href="sketches.html">Custom Sketches</a>
+        <a href="notes.html">Handwritten Notes</a>
+      </nav>
+    </div>
+  </header>
 
-<main class="container">
+  <main class="container">
 
-<section class="hero">
-<h2>Buy • Sell • Exchange — Student-made</h2>
-<p>Discover local student artworks, second-hand books, custom sketches, and topper notes at pocket-friendly prices.</p>
-</section>
+    <section class="hero">
+      <h2>Buy • Sell • Exchange — Student-made</h2>
+      <p>Discover local student artworks, second-hand books, custom sketches, and topper notes at pocket-friendly prices.</p>
+      <!-- Added simple search bar for interactivity -->
+      <input type="text" id="searchBar" placeholder="Search for art, books, or sketches..." />
+      <button id="searchBtn">Search</button>
+    </section>
 
-<!-- Login / Signup -->
-<section>
-<h2>Login / Signup</h2>
-<input type="email" id="email" placeholder="Email">
-<input type="password" id="password" placeholder="Password">
-<select id="roleSelect">
-  <option value="buyer">Buyer</option>
-  <option value="seller">Seller</option>
-</select>
-<button id="signupBtn">Sign Up</button>
-<button id="loginBtn">Login</button>
-</section>
+    <!-- Login / Signup -->
+    <section id="authSection">
+      <h2 id="authTitle">Login / Signup</h2>
+      <form id="authForm">
+        <label for="email">Email:</label>
+        <input type="email" id="email" placeholder="Enter your email" required />
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Enter your password" minlength="6" required />
+        
+        <label for="roleSelect">Role:</label>
+        <select id="roleSelect" required>
+          <option value="buyer">Buyer</option>
+          <option value="seller">Seller</option>
+        </select>
+        
+        <button type="button" id="signupBtn">Sign Up</button>
+        <button type="button" id="loginBtn">Login</button>
+      </form>
+      <p id="authMessage" style="color: red;"></p> <!-- For error/success messages -->
+    </section>
 
-</main>
+    <!-- User Dashboard (shown when logged in) -->
+    <section id="userDashboard" style="display: none;">
+      <h2>Welcome back!</h2>
+      <p id="userInfo"></p>
+      <button id="logoutBtn">Logout</button>
+    </section>
 
-<footer>
-<div class="container">
-<p>© 2025 Student Art Hub — Built by Aryan</p>
-</div>
-</footer>
+  </main>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+  <footer>
+    <div class="container">
+      <p>© 2025 Student Art Hub — Built by Aryan</p>
+      <p><a href="contact.html">Contact Us</a> | <a href="privacy.html">Privacy Policy</a></p>
+    </div>
+  </footer>
 
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
-  authDomain: "art-hub-77eb1.firebaseapp.com",
-  projectId: "art-hub-77eb1",
-  storageBucket: "art-hub-77eb1.appspot.com",
-  messagingSenderId: "1097170910592",
-  appId: "1:1097170910592:web:8590c10f6d0662d6881565",
-  measurementId: "G-WGQWCTTD35"
-};
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    // Firebase Config (Move to env vars in production for security)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+      authDomain: "art-hub-77eb1.firebaseapp.com",
+      projectId: "art-hub-77eb1",
+      storageBucket: "art-hub-77eb1.appspot.com",
+      messagingSenderId: "1097170910592",
+      appId: "1:1097170910592:web:8590c10f6d0662d6881565",
+      measurementId: "G-WGQWCTTD35"
+    };
 
-// Signup
-document.getElementById("signupBtn").addEventListener("click", async () => {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const role = document.getElementById("roleSelect").value;
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
-    await setDoc(doc(db,"users",uid),{role});
-    alert("Signup successful as " + role);
-  } catch(e){ alert(e.message); }
-});
+    const authSection = document.getElementById("authSection");
+    const userDashboard = document.getElementById("userDashboard");
+    const userInfo = document.getElementById("userInfo");
+    const authMessage = document.getElementById("authMessage");
 
-// Login
-document.getElementById("loginBtn").addEventListener("click", async () => {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth,email,password);
-    const uid = userCredential.user.uid;
-    const docSnap = await getDoc(doc(db,"users",uid));
-    const role = docSnap.data().role;
-    alert("Logged in as " + role);
-    // Redirect based on role if needed
-    window.location.href = "index.html";
-  } catch(e){ alert(e.message); }
-});
-</script>
+    // Auth State Listener
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User logged in
+        const uid = user.uid;
+        const docSnap = await getDoc(doc(db, "users", uid));
+        const role = docSnap.exists() ? docSnap.data().role : "Unknown";
+        userInfo.textContent = `Logged in as ${user.email} (${role})`;
+        authSection.style.display = "none";
+        userDashboard.style.display = "block";
+      } else {
+        // User logged out
+        authSection.style.display = "block";
+        userDashboard.style.display = "none";
+      }
+    });
+
+    // Signup
+    document.getElementById("signupBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const role = document.getElementById("roleSelect").value;
+
+      if (!email || !password || password.length < 6) {
+        authMessage.textContent = "Please fill all fields correctly (password min 6 chars).";
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+        await setDoc(doc(db, "users", uid), { role });
+        authMessage.textContent = "Signup successful as " + role;
+        authMessage.style.color = "green";
+      } catch (e) {
+        authMessage.textContent = e.message;
+      }
+    });
+
+    // Login
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        authMessage.textContent = "Please enter email and password.";
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        authMessage.textContent = "Login successful!";
+        authMessage.style.color = "green";
+      } catch (e) {
+        authMessage.textContent = e.message;
+      }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        authMessage.textContent = "Logged out successfully.";
+        authMessage.style.color = "green";
+      } catch (e) {
+        authMessage.textContent = e.message;
+      }
+    });
+
+    // Placeholder for Search (Add functionality later)
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      const query = document.getElementById("searchBar").value;
+      alert(`Search for: ${query} (Implement actual search logic here)`);
+    });
+  </script>
 
 </body>
+
 </html>
