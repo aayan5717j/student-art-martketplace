@@ -1,21 +1,55 @@
 /* Simple responsive styles for Student Art Hub */
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,Segoe UI,Arial,sans-serif;background:#f7fafc;color:#222;line-height:1.5}
-.container{max-width:1100px;margin:0 auto;padding:20px}
-header{background:linear-gradient(90deg,#4b6cb7,#182848);color:#fff;padding:20px 0}
-header h1{margin-bottom:8px;text-align:center;font-size:1.8rem}
-nav{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
-nav a{color:#fff;text-decoration:none;font-weight:600}
-.hero{background:#fff;border-radius:10px;padding:40px;text-align:center;margin:20px 0;box-shadow:0 6px 18px rgba(16,24,40,0.06)}
-.hero h2{color:#1f2937;margin-bottom:12px}
-.featured{background:#fff;border-radius:10px;padding:20px;box-shadow:0 6px 18px rgba(16,24,40,0.06)}
-.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:16px}
-.item{background:#fff;border-radius:8px;padding:14px;text-align:center;box-shadow:0 4px 12px rgba(16,24,40,0.04)}
-.item img{width:100%;height:160px;object-fit:cover;border-radius:6px}
-.price{font-weight:700;margin:8px 0}
-button{background:linear-gradient(90deg,#4b6cb7,#182848);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
-.contact{margin:20px 0}
-form{display:flex;flex-direction:column;gap:10px;max-width:600px;margin:0 auto}
-input,textarea,select{padding:10px;border:1px solid #e6e6e6;border-radius:6px}
-footer{padding:14px 0;text-align:center;margin-top:20px;background:#fff}
-@media(max-width:600px){header h1{font-size:1.3rem}.gallery{grid-template-columns:1fr}}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Inter, Segoe UI, Arial, sans-serif; background: #f7fafc; color: #222; line-height: 1.5; }
+.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+header { background: linear-gradient(90deg, #4b6cb7, #182848); color: #fff; padding: 20px 0; }
+header h1 { margin-bottom: 8px; text-align: center; font-size: 1.8rem; }
+nav { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; }
+nav a { color: #fff; text-decoration: none; font-weight: 600; }
+nav a:hover { text-decoration: underline; }
+
+.hero { background: #fff; border-radius: 10px; padding: 40px; text-align: center; margin: 20px 0; box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06); }
+.hero h2 { color: #1f2937; margin-bottom: 12px; }
+/* Added styles for search bar */
+.hero input[type="text"] { padding: 10px; border: 1px solid #e6e6e6; border-radius: 6px; width: 60%; max-width: 400px; margin-right: 10px; }
+.hero button { background: linear-gradient(90deg, #4b6cb7, #182848); color: #fff; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+.hero button:hover { opacity: 0.9; }
+
+.featured { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06); }
+.gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 16px; }
+.item { background: #fff; border-radius: 8px; padding: 14px; text-align: center; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.04); }
+.item img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; }
+.price { font-weight: 700; margin: 8px 0; }
+
+/* Enhanced form styling for auth section */
+#authSection h2 { margin-bottom: 20px; }
+#authForm { display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto; }
+#authForm label { font-weight: bold; margin-bottom: 4px; }
+#authForm input, #authForm select { padding: 10px; border: 1px solid #e6e6e6; border-radius: 6px; }
+#authForm button { background: linear-gradient(90deg, #4b6cb7, #182848); color: #fff; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+#authForm button:hover { opacity: 0.9; }
+#authMessage { margin-top: 10px; font-size: 0.9rem; } /* Error/success messages */
+
+/* Added styles for user dashboard */
+#userDashboard { background: #fff; border-radius: 10px; padding: 20px; text-align: center; margin: 20px 0; box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06); }
+#userDashboard h2 { color: #1f2937; }
+#logoutBtn { background: #dc3545; color: #fff; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+#logoutBtn:hover { opacity: 0.9; }
+
+.contact { margin: 20px 0; }
+form { display: flex; flex-direction: column; gap: 10px; max-width: 600px; margin: 0 auto; }
+input, textarea, select { padding: 10px; border: 1px solid #e6e6e6; border-radius: 6px; }
+button { background: linear-gradient(90deg, #4b6cb7, #182848); color: #fff; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+button:hover { opacity: 0.9; }
+
+footer { padding: 14px 0; text-align: center; margin-top: 20px; background: #fff; }
+footer a { color: #4b6cb7; text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  header h1 { font-size: 1.3rem; }
+  .gallery { grid-template-columns: 1fr; }
+  .hero input[type="text"] { width: 80%; margin-right: 0; margin-bottom: 10px; }
+  .hero { display: flex; flex-direction: column; align-items: center; }
+  #authForm { max-width: 100%; }
+}
