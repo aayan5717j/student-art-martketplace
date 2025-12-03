@@ -4,11 +4,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Student Art Hub: Buy, sell, and exchange student-made art, books, sketches, and notes at affordable prices." />
-  <meta name="keywords" content="student art, marketplace, buy sell art, custom sketches, handwritten notes, book exchange" />
+  <meta name="description"
+    content="Student Art Hub: Buy, sell, and exchange student-made art, books, sketches, and notes at affordable prices." />
+  <meta name="keywords"
+    content="student art, marketplace, buy sell art, custom sketches, handwritten notes, book exchange" />
   <meta property="og:title" content="Student Art Hub" />
   <meta property="og:description" content="Discover local student artworks and more!" />
-  <meta property="og:image" content="https://aayan5717j.github.io/student-art-marketplace/images/logo.png" /> <!-- Replace with your image URL -->
+  <meta property="og:image" content="https://aayan5717j.github.io/student-art-marketplace/images/logo.png" />
+  <!-- Replace with your image URL -->
   <meta property="og:url" content="https://aayan5717j.github.io/student-art-marketplace/" />
   <title>Student Art Hub - Home</title>
   <link rel="stylesheet" href="styles.css" />
@@ -25,6 +28,8 @@
         <a href="books.html">Book Exchange</a>
         <a href="sketches.html">Custom Sketches</a>
         <a href="notes.html">Handwritten Notes</a>
+        <a href="donation.html">Donations</a>
+        <a href="sellers.html">Sellers</a> <!-- Yeh naya link add kiya -->
       </nav>
     </div>
   </header>
@@ -33,10 +38,13 @@
 
     <section class="hero">
       <h2>Buy • Sell • Exchange — Student-made</h2>
-      <p>Discover local student artworks, second-hand books, custom sketches, and topper notes at pocket-friendly prices.</p>
-      <!-- Added simple search bar for interactivity -->
+      <p>Discover local student artworks, second-hand books, custom sketches, and topper notes at pocket-friendly
+        prices.</p>
+      <p style="font-size: 0.9em; color: #666;">Don't want to sell? Donate your items for free to help fellow students!
+        Contact us via the form below.</p>
       <input type="text" id="searchBar" placeholder="Search for art, books, or sketches..." />
       <button id="searchBtn">Search</button>
+      <p id="searchResults" style="margin-top: 10px; font-weight: bold;"></p>
     </section>
 
     <!-- Login / Signup -->
@@ -45,27 +53,101 @@
       <form id="authForm">
         <label for="email">Email:</label>
         <input type="email" id="email" placeholder="Enter your email" required />
-        
+
         <label for="password">Password:</label>
         <input type="password" id="password" placeholder="Enter your password" minlength="6" required />
-        
+
         <label for="roleSelect">Role:</label>
         <select id="roleSelect" required>
           <option value="buyer">Buyer</option>
           <option value="seller">Seller</option>
         </select>
-        
+
         <button type="button" id="signupBtn">Sign Up</button>
         <button type="button" id="loginBtn">Login</button>
       </form>
-      <p id="authMessage" style="color: red;"></p> <!-- For error/success messages -->
+      <p id="authMessage" style="color: red;"></p>
     </section>
 
-    <!-- User Dashboard (shown when logged in) -->
+    <!-- User Dashboard -->
     <section id="userDashboard" style="display: none;">
       <h2>Welcome back!</h2>
       <p id="userInfo"></p>
       <button id="logoutBtn">Logout</button>
+      <div id="sellerOptions" style="display: none; margin-top: 20px;">
+        <h3>Manage Your Listings</h3>
+        <button id="addListingBtn">Add New Listing</button>
+        <div id="listingsContainer"></div>
+      </div>
+    </section>
+
+    <!-- Contact Form -->
+    <section class="contact" id="contactForm">
+      <h2>Contact Us</h2>
+      <form action="https://formspree.io/f/your-form-id" method="POST" id="contactFormElement">
+        <label for="contactName">Name:</label>
+        <input type="text" id="contactName" name="name" required />
+
+        <label for="contactEmail">Email:</label>
+        <input type="email" id="contactEmail" name="email" required />
+
+        <label for="donationType">What do you want to donate?</label>
+        <select id="donationType" name="donationType" required>
+          <option value="">Select an option</option>
+          <option value="book">Book</option>
+          <option value="money">Money</option>
+          <option value="uniform">Uniform</option>
+          <option value="other">Other (e.g., art supplies, notes)</option>
+        </select>
+
+        <div id="bookFields" style="display: none;">
+          <label for="bookTitle">Book Title:</label>
+          <input type="text" id="bookTitle" name="bookTitle" placeholder="E.g., Math Book Class 10" />
+
+          <label for="bookAuthor">Author (optional):</label>
+          <input type="text" id="bookAuthor" name="bookAuthor" placeholder="E.g., RD Sharma" />
+
+          <label for="bookCondition">Condition:</label>
+          <select id="bookCondition" name="bookCondition">
+            <option value="new">New</option>
+            <option value="good">Good</option>
+            <option value="used">Used</option>
+          </select>
+        </div>
+
+        <div id="moneyFields" style="display: none;">
+          <label for="moneyAmount">Amount (in INR):</label>
+          <input type="number" id="moneyAmount" name="moneyAmount" placeholder="E.g., 500" min="1" />
+
+          <label for="paymentMethod">Preferred Payment Method:</label>
+          <select id="paymentMethod" name="paymentMethod">
+            <option value="upi">UPI</option>
+            <option value="bank">Bank Transfer</option>
+            <option value="paypal">PayPal</option>
+          </select>
+        </div>
+
+        <div id="uniformFields" style="display: none;">
+          <label for="uniformType">Uniform Type:</label>
+          <input type="text" id="uniformType" name="uniformType" placeholder="E.g., School Blazer, Tie" />
+
+          <label for="uniformSize">Size:</label>
+          <input type="text" id="uniformSize" name="uniformSize" placeholder="E.g., M, 32" />
+
+          <label for="uniformCondition">Condition:</label>
+          <select id="uniformCondition" name="uniformCondition">
+            <option value="new">New</option>
+            <option value="good">Good</option>
+            <option value="used">Used</option>
+          </select>
+        </div>
+
+        <label for="contactMessage">Additional Message:</label>
+        <textarea id="contactMessage" name="message" rows="4" placeholder="Any extra details..."></textarea>
+
+        <button type="submit" id="contactBtn">Send Message</button>
+      </form>
+      <p id="contactMessage" style="color: green; margin-top: 10px;"></p>
     </section>
 
   </main>
@@ -80,9 +162,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    // Firebase Config (Move to env vars in production for security)
     const firebaseConfig = {
       apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
       authDomain: "art-hub-77eb1.firebaseapp.com",
@@ -101,32 +182,42 @@
     const userDashboard = document.getElementById("userDashboard");
     const userInfo = document.getElementById("userInfo");
     const authMessage = document.getElementById("authMessage");
+    const searchResults = document.getElementById("searchResults");
+    const contactBtn = document.getElementById("contactBtn");
+    const contactMessage = document.getElementById("contactMessage");
 
     // Auth State Listener
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User logged in
         const uid = user.uid;
         const docSnap = await getDoc(doc(db, "users", uid));
         const role = docSnap.exists() ? docSnap.data().role : "Unknown";
         userInfo.textContent = `Logged in as ${user.email} (${role})`;
         authSection.style.display = "none";
         userDashboard.style.display = "block";
+        if (role === "seller") {
+          document.getElementById("sellerOptions").style.display = "block";
+          loadListings(uid);
+        }
       } else {
-        // User logged out
         authSection.style.display = "block";
         userDashboard.style.display = "none";
       }
     });
 
-    // Signup
+    // Signup with loading
     document.getElementById("signupBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("signupBtn");
+      btn.textContent = "Signing Up...";
+      btn.disabled = true;
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const role = document.getElementById("roleSelect").value;
 
       if (!email || !password || password.length < 6) {
         authMessage.textContent = "Please fill all fields correctly (password min 6 chars).";
+        btn.textContent = "Sign Up";
+        btn.disabled = false;
         return;
       }
 
@@ -138,16 +229,24 @@
         authMessage.style.color = "green";
       } catch (e) {
         authMessage.textContent = e.message;
+      } finally {
+        btn.textContent = "Sign Up";
+        btn.disabled = false;
       }
     });
 
-    // Login
+    // Login with loading
     document.getElementById("loginBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("loginBtn");
+      btn.textContent = "Logging In...";
+      btn.disabled = true;
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
 
       if (!email || !password) {
         authMessage.textContent = "Please enter email and password.";
+        btn.textContent = "Login";
+        btn.disabled = false;
         return;
       }
 
@@ -157,6 +256,9 @@
         authMessage.style.color = "green";
       } catch (e) {
         authMessage.textContent = e.message;
+      } finally {
+        btn.textContent = "Login";
+        btn.disabled = false;
       }
     });
 
@@ -171,11 +273,79 @@
       }
     });
 
-    // Placeholder for Search (Add functionality later)
+    // Search Functionality
     document.getElementById("searchBtn").addEventListener("click", () => {
-      const query = document.getElementById("searchBar").value;
-      alert(`Search for: ${query} (Implement actual search logic here)`);
+      const query = document.getElementById("searchBar").value.toLowerCase();
+      const categories = ["art", "books", "sketches", "notes"];
+      const match = categories.find(cat => cat.includes(query));
+      if (match) {
+        searchResults.textContent = `Found: ${match.charAt(0).toUpperCase() + match.slice(1)} - Redirecting...`;
+        window.location.href = `${match}.html`;
+      } else {
+        searchResults.textContent = "No matches found. Try 'art', 'books', etc.";
+      }
     });
+
+    // Contact Form Submit
+    document.getElementById("contactFormElement").addEventListener("submit", (e) => {
+      contactBtn.textContent = "Sending...";
+      contactBtn.disabled = true;
+      setTimeout(() => {
+        contactMessage.textContent = "Message sent! We'll get back to you.";
+        contactBtn.textContent = "Send Message";
+        contactBtn.disabled = false;
+      }, 1000);
+    });
+
+    // Donation Type Selection Logic
+    document.getElementById("donationType").addEventListener("change", (e) => {
+      const type = e.target.value;
+      document.getElementById("bookFields").style.display = "none";
+      document.getElementById("moneyFields").style.display = "none";
+      document.getElementById("uniformFields").style.display = "none";
+
+      if (type === "book") {
+        document.getElementById("bookFields").style.display = "block";
+      } else if (type === "money") {
+        document.getElementById("moneyFields").style.display = "block";
+      } else if (type === "uniform") {
+        document.getElementById("uniformFields").style.display = "block";
+      }
+    });
+
+    // Add Listing Button (for sellers)
+    document.getElementById("addListingBtn").addEventListener("click", async () => {
+      const title = prompt("Listing Title:");
+      const price = prompt("Price:");
+      const category = prompt("Category (art/books/etc.):");
+      if (title && price) {
+        const user = auth.currentUser;
+        if (user) {
+          await setDoc(doc(collection(db, "listings")), {
+            sellerId: user.uid,
+            title,
+            price: parseFloat(price),
+            category,
+            createdAt: new Date()
+          });
+          alert("Listing added!");
+          loadListings(user.uid);
+        }
+      }
+    });
+
+    // Load Listings Function
+    async function loadListings(sellerId) {
+      const listingsContainer = document.getElementById("listingsContainer");
+      listingsContainer.innerHTML = "";
+      const q = query(collection(db, "listings"), where("sellerId", "==", sellerId));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        const li = document.createElement("div");
+        li.textContent = `${doc.data().title} - ₹${doc.data().price}`;
+        listingsContainer.appendChild(li);
+      });
+    }
   </script>
 
 </body>
