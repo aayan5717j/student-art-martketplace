@@ -37,6 +37,76 @@
       
       <p style="margin-top: 20px;">Or donate via other methods: Contact us for bank transfer details.</p>
     </section>
+
+    <!-- New Donation Form for WhatsApp Contact -->
+    <section class="donation-form">
+      <h2>Donate and Contact Us</h2>
+      <p>Fill the form below, and we'll connect with you on WhatsApp to handle your donation personally.</p>
+      <form id="donationForm">
+        <label for="donorName">Donor Name:</label>
+        <input type="text" id="donorName" placeholder="Your Name" required>
+
+        <label for="donorEmail">Donor Email:</label>
+        <input type="email" id="donorEmail" placeholder="Your Email" required>
+
+        <label for="donationType">Donation Type:</label>
+        <select id="donationType" required>
+          <option value="">Select an option</option>
+          <option value="Book">Book</option>
+          <option value="Money">Money</option>
+          <option value="Uniform">Uniform</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <div id="bookFields" style="display: none;">
+          <label for="bookTitle">Book Title:</label>
+          <input type="text" id="bookTitle" placeholder="E.g., Math Book Class 10">
+
+          <label for="bookAuthor">Author (optional):</label>
+          <input type="text" id="bookAuthor" placeholder="E.g., RD Sharma">
+
+          <label for="bookCondition">Condition:</label>
+          <select id="bookCondition">
+            <option value="new">New</option>
+            <option value="good">Good</option>
+            <option value="used">Used</option>
+          </select>
+        </div>
+
+        <div id="moneyFields" style="display: none;">
+          <label for="moneyAmount">Amount (in INR):</label>
+          <input type="number" id="moneyAmount" placeholder="E.g., 500" min="1">
+
+          <label for="paymentMethod">Preferred Payment Method:</label>
+          <select id="paymentMethod">
+            <option value="upi">UPI</option>
+            <option value="bank">Bank Transfer</option>
+            <option value="paypal">PayPal</option>
+          </select>
+        </div>
+
+        <div id="uniformFields" style="display: none;">
+          <label for="uniformType">Uniform Type:</label>
+          <input type="text" id="uniformType" placeholder="E.g., School Blazer, Tie">
+
+          <label for="uniformSize">Size:</label>
+          <input type="text" id="uniformSize" placeholder="E.g., M, 32">
+
+          <label for="uniformCondition">Condition:</label>
+          <select id="uniformCondition">
+            <option value="new">New</option>
+            <option value="good">Good</option>
+            <option value="used">Used</option>
+          </select>
+        </div>
+
+        <label for="additionalDetails">Additional Details:</label>
+        <textarea id="additionalDetails" rows="4" placeholder="Any extra details..."></textarea>
+
+        <button type="submit" id="donateBtn">Donate</button>
+      </form>
+      <p id="donationMessage" style="color: green; margin-top: 10px;"></p>
+    </section>
   </main>
 
   <footer>
@@ -45,5 +115,66 @@
       <p><a href="contact.html">Contact Us</a> | <a href="privacy.html">Privacy Policy</a></p>
     </div>
   </footer>
+
+  <script>
+    // Donation Type Selection Logic
+    document.getElementById("donationType").addEventListener("change", (e) => {
+      const type = e.target.value;
+      document.getElementById("bookFields").style.display = "none";
+      document.getElementById("moneyFields").style.display = "none";
+      document.getElementById("uniformFields").style.display = "none";
+
+      if (type === "Book") {
+        document.getElementById("bookFields").style.display = "block";
+      } else if (type === "Money") {
+        document.getElementById("moneyFields").style.display = "block";
+      } else if (type === "Uniform") {
+        document.getElementById("uniformFields").style.display = "block";
+      }
+    });
+
+    // Donation Form Submit for WhatsApp
+    document.getElementById("donationForm").addEventListener("submit", (e) => {
+      e.preventDefault(); // Form submit na ho
+
+      // Form data collect karo
+      const donorName = document.getElementById("donorName").value;
+      const donorEmail = document.getElementById("donorEmail").value;
+      const donationType = document.getElementById("donationType").value;
+      const additionalDetails = document.getElementById("additionalDetails").value;
+
+      // Additional details based on donation type
+      let details = "";
+      if (donationType === "Book") {
+        const bookTitle = document.getElementById("bookTitle").value;
+        const bookAuthor = document.getElementById("bookAuthor").value;
+        const bookCondition = document.getElementById("bookCondition").value;
+        details = `Book Title: ${bookTitle}, Author: ${bookAuthor}, Condition: ${bookCondition}`;
+      } else if (donationType === "Money") {
+        const moneyAmount = document.getElementById("moneyAmount").value;
+        const paymentMethod = document.getElementById("paymentMethod").value;
+        details = `Amount: ₹${moneyAmount}, Payment Method: ${paymentMethod}`;
+      } else if (donationType === "Uniform") {
+        const uniformType = document.getElementById("uniformType").value;
+        const uniformSize = document.getElementById("uniformSize").value;
+        const uniformCondition = document.getElementById("uniformCondition").value;
+        details = `Uniform Type: ${uniformType}, Size: ${uniformSize}, Condition: ${uniformCondition}`;
+      } else if (donationType === "Other") {
+        details = "Other items";
+      }
+
+      // WhatsApp message prepare karo
+      const message = `Hi, I want to donate:\nType: ${donationType}\nName: ${donorName}\nEmail: ${donorEmail}\nDetails: ${details}\nAdditional: ${additionalDetails}`;
+
+      // WhatsApp URL banaye (number: +91 8882529632)
+      const whatsappUrl = `https://wa.me/918882529632?text=${encodeURIComponent(message)}`;
+
+      // WhatsApp open karo
+      window.open(whatsappUrl, '_blank');
+
+      // Success message show karo
+      document.getElementById("donationMessage").textContent = "Redirecting to WhatsApp...";
+    });
+  </script>
 </body>
 </html>
