@@ -286,15 +286,48 @@
       }
     });
 
-    // Contact Form Submit
+    // Modified Contact Form Submit for WhatsApp
     document.getElementById("contactFormElement").addEventListener("submit", (e) => {
-      contactBtn.textContent = "Sending...";
-      contactBtn.disabled = true;
-      setTimeout(() => {
-        contactMessage.textContent = "Message sent! We'll get back to you.";
-        contactBtn.textContent = "Send Message";
-        contactBtn.disabled = false;
-      }, 1000);
+      e.preventDefault(); // Form submit na ho
+
+      // Form data collect karo
+      const name = document.getElementById("contactName").value;
+      const email = document.getElementById("contactEmail").value;
+      const donationType = document.getElementById("donationType").value;
+      const additionalMessage = document.getElementById("contactMessage").value;
+
+      // Additional details based on donation type
+      let details = "";
+      if (donationType === "book") {
+        const bookTitle = document.getElementById("bookTitle").value;
+        const bookAuthor = document.getElementById("bookAuthor").value;
+        const bookCondition = document.getElementById("bookCondition").value;
+        details = `Book Title: ${bookTitle}, Author: ${bookAuthor}, Condition: ${bookCondition}`;
+      } else if (donationType === "money") {
+        const moneyAmount = document.getElementById("moneyAmount").value;
+        const paymentMethod = document.getElementById("paymentMethod").value;
+        details = `Amount: ₹${moneyAmount}, Payment Method: ${paymentMethod}`;
+      } else if (donationType === "uniform") {
+        const uniformType = document.getElementById("uniformType").value;
+        const uniformSize = document.getElementById("uniformSize").value;
+        const uniformCondition = document.getElementById("uniformCondition").value;
+        details = `Uniform Type: ${uniformType}, Size: ${uniformSize}, Condition: ${uniformCondition}`;
+      } else if (donationType === "other") {
+        details = "Other items";
+      }
+
+      // WhatsApp message prepare karo
+      const message = `Hi, I want to donate:\nType: ${donationType}\nName: ${name}\nEmail: ${email}\nDetails: ${details}\nAdditional Message: ${additionalMessage}`;
+
+      // WhatsApp URL banaye (number: +91 8882529632)
+      const whatsappUrl = `https://wa.me/918882529632?text=${encodeURIComponent(message)}`;
+
+      // WhatsApp open karo
+      window.open(whatsappUrl, '_blank');
+
+      // Success message show karo
+      contactMessage.textContent = "Redirecting to WhatsApp...";
+      contactMessage.style.color = "green";
     });
 
     // Donation Type Selection Logic
