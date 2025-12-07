@@ -1,386 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description"
-    content="Student Art Hub: Buy, sell, and exchange student-made art, books, sketches, and notes at affordable prices." />
-  <meta name="keywords"
-    content="student art, marketplace, buy sell art, custom sketches, handwritten notes, book exchange" />
-  <meta property="og:title" content="Student Art Hub" />
-  <meta property="og:description" content="Discover local student artworks and more!" />
-  <meta property="og:image" content="https://aayan5717j.github.io/student-art-marketplace/images/logo.png" />
-  <!-- Replace with your image URL -->
-  <meta property="og:url" content="https://aayan5717j.github.io/student-art-marketplace/" />
-  <title>Student Art Hub - Home</title>
+  <meta name="description" content="Student Art Hub: Buy, sell, and exchange student-made art, books, sketches, and notes at affordable prices." />
+  <meta name="keywords" content="student art, marketplace, buy sell art, custom sketches, handwritten notes, book exchange" />
+  <title>Student Art Hub</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
 
-  <header>
-    <div class="container">
-      <h1>Student Art Hub</h1>
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="art.html">Art Showcase</a>
-        <a href="books.html">Book Exchange</a>
-        <a href="sketches.html">Custom Sketches</a>
-        <a href="notes.html">Handwritten Notes</a>
-        <a href="donation.html">Donations</a>
-        <a href="sellers.html">Sellers</a> <!-- Yeh naya link add kiya -->
-      </nav>
+<header>
+  <div class="container">
+    <h1>Student Art Hub</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="art.html">Art Showcase</a>
+      <a href="books.html">Book Exchange</a>
+      <a href="sketches.html">Custom Sketches</a>
+      <a href="notes.html">Handwritten Notes</a>
+      <a href="donations.html">Donations</a>
+      <a href="sellers.html">Sellers</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h2>Buy • Sell • Exchange — Student-made</h2>
+    <p>Discover local student artworks, second-hand books, custom sketches, and topper notes at pocket-friendly prices.</p>
+    <input type="text" id="searchBar" placeholder="Search for art, books, or sketches..." />
+    <button id="searchBtn">Search</button>
+    <p id="searchResults" style="margin-top:10px;font-weight:bold;"></p>
+  </section>
+
+  <!-- Auth Section -->
+  <section id="authSection">
+    <h2>Login / Signup</h2>
+    <form id="authForm">
+      <label for="email">Email:</label>
+      <input type="email" id="email" placeholder="Enter your email" required />
+      <label for="password">Password:</label>
+      <input type="password" id="password" placeholder="Enter your password" minlength="6" required />
+      <label for="roleSelect">Role:</label>
+      <select id="roleSelect" required>
+        <option value="buyer">Buyer</option>
+        <option value="seller">Seller</option>
+      </select>
+      <button type="button" id="signupBtn">Sign Up</button>
+      <button type="button" id="loginBtn">Login</button>
+      <button type="button" id="googleLoginBtn" style="background:#4285F4;color:white;margin-top:10px;">Login with Google</button>
+    </form>
+    <p id="authMessage" style="color:red;"></p>
+  </section>
+
+  <!-- User Dashboard -->
+  <section id="userDashboard" style="display:none;">
+    <h2>Welcome back!</h2>
+    <p id="userInfo"></p>
+    <button id="logoutBtn">Logout</button>
+
+    <!-- Seller Options -->
+    <div id="sellerOptions" style="display:none;margin-top:20px;">
+      <h3>Manage Your Listings</h3>
+      <button id="addListingBtn">Add New Listing</button>
+      <div id="listingsContainer"></div>
     </div>
-  </header>
+  </section>
 
-  <main class="container">
+  <!-- Product Listing -->
+  <section id="productListing">
+    <h2>Available Listings</h2>
+    <div id="productContainer" style="display:flex;flex-wrap:wrap;gap:15px;"></div>
+  </section>
 
-    <section class="hero">
-      <h2>Buy • Sell • Exchange — Student-made</h2>
-      <p>Discover local student artworks, second-hand books, custom sketches, and topper notes at pocket-friendly
-        prices.</p>
-      <p style="font-size: 0.9em; color: #666;">Don't want to sell? Donate your items for free to help fellow students!
-        Contact us via the form below.</p>
-      <input type="text" id="searchBar" placeholder="Search for art, books, or sketches..." />
-      <button id="searchBtn">Search</button>
-      <p id="searchResults" style="margin-top: 10px; font-weight: bold;"></p>
-    </section>
+  <!-- Contact Form -->
+  <section id="contactForm">
+    <h2>Contact / Donate</h2>
+    <form id="contactFormElement">
+      <label for="contactName">Name:</label>
+      <input type="text" id="contactName" name="name" required />
+      <label for="contactEmail">Email:</label>
+      <input type="email" id="contactEmail" name="email" required />
+      <label for="donationType">Donation Type:</label>
+      <select id="donationType" name="donationType" required>
+        <option value="">Select</option>
+        <option value="book">Book</option>
+        <option value="money">Money</option>
+        <option value="uniform">Uniform</option>
+        <option value="other">Other</option>
+      </select>
 
-    <!-- Login / Signup -->
-    <section id="authSection">
-      <h2 id="authTitle">Login / Signup</h2>
-      <form id="authForm">
-        <label for="email">Email:</label>
-        <input type="email" id="email" placeholder="Enter your email" required />
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" placeholder="Enter your password" minlength="6" required />
-
-        <label for="roleSelect">Role:</label>
-        <select id="roleSelect" required>
-          <option value="buyer">Buyer</option>
-          <option value="seller">Seller</option>
-        </select>
-
-        <button type="button" id="signupBtn">Sign Up</button>
-        <button type="button" id="loginBtn">Login</button>
-      </form>
-      <p id="authMessage" style="color: red;"></p>
-    </section>
-
-    <!-- User Dashboard -->
-    <section id="userDashboard" style="display: none;">
-      <h2>Welcome back!</h2>
-      <p id="userInfo"></p>
-      <button id="logoutBtn">Logout</button>
-      <div id="sellerOptions" style="display: none; margin-top: 20px;">
-        <h3>Manage Your Listings</h3>
-        <button id="addListingBtn">Add New Listing</button>
-        <div id="listingsContainer"></div>
+      <div id="bookFields" style="display:none;">
+        <label for="bookTitle">Book Title:</label>
+        <input type="text" id="bookTitle" />
+        <label for="bookAuthor">Author:</label>
+        <input type="text" id="bookAuthor" />
+        <label for="bookCondition">Condition:</label>
+        <select id="bookCondition"><option value="new">New</option><option value="good">Good</option><option value="used">Used</option></select>
       </div>
-    </section>
 
-    <!-- Contact Form -->
-    <section class="contact" id="contactForm">
-      <h2>Contact Us</h2>
-      <form action="https://formspree.io/f/your-form-id" method="POST" id="contactFormElement">
-        <label for="contactName">Name:</label>
-        <input type="text" id="contactName" name="name" required />
+      <div id="moneyFields" style="display:none;">
+        <label for="moneyAmount">Amount:</label>
+        <input type="number" id="moneyAmount" min="1" />
+        <label for="paymentMethod">Payment Method:</label>
+        <select id="paymentMethod"><option value="upi">UPI</option><option value="bank">Bank</option><option value="paypal">PayPal</option></select>
+      </div>
 
-        <label for="contactEmail">Email:</label>
-        <input type="email" id="contactEmail" name="email" required />
+      <div id="uniformFields" style="display:none;">
+        <label for="uniformType">Uniform Type:</label>
+        <input type="text" id="uniformType" />
+        <label for="uniformSize">Size:</label>
+        <input type="text" id="uniformSize" />
+        <label for="uniformCondition">Condition:</label>
+        <select id="uniformCondition"><option value="new">New</option><option value="good">Good</option><option value="used">Used</option></select>
+      </div>
 
-        <label for="donationType">What do you want to donate?</label>
-        <select id="donationType" name="donationType" required>
-          <option value="">Select an option</option>
-          <option value="book">Book</option>
-          <option value="money">Money</option>
-          <option value="uniform">Uniform</option>
-          <option value="other">Other (e.g., art supplies, notes)</option>
-        </select>
+      <label for="contactMessage">Message:</label>
+      <textarea id="contactMessage" rows="4"></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+    <p id="contactStatus" style="color:green;margin-top:10px;"></p>
+  </section>
 
-        <div id="bookFields" style="display: none;">
-          <label for="bookTitle">Book Title:</label>
-          <input type="text" id="bookTitle" name="bookTitle" placeholder="E.g., Math Book Class 10" />
+</main>
 
-          <label for="bookAuthor">Author (optional):</label>
-          <input type="text" id="bookAuthor" name="bookAuthor" placeholder="E.g., RD Sharma" />
+<footer>
+  <div class="container">
+    <p>© 2025 Student Art Hub — Built by Aryan</p>
+    <p><a href="contact.html">Contact</a> | <a href="privacy.html">Privacy Policy</a></p>
+  </div>
+</footer>
 
-          <label for="bookCondition">Condition:</label>
-          <select id="bookCondition" name="bookCondition">
-            <option value="new">New</option>
-            <option value="good">Good</option>
-            <option value="used">Used</option>
-          </select>
-        </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, sendEmailVerification, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-        <div id="moneyFields" style="display: none;">
-          <label for="moneyAmount">Amount (in INR):</label>
-          <input type="number" id="moneyAmount" name="moneyAmount" placeholder="E.g., 500" min="1" />
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+    authDomain: "art-hub-77eb1.firebaseapp.com",
+    projectId: "art-hub-77eb1",
+    storageBucket: "art-hub-77eb1.appspot.com",
+    messagingSenderId: "1097170910592",
+    appId: "1:1097170910592:web:8590c10f6d0662d6881565"
+  };
 
-          <label for="paymentMethod">Preferred Payment Method:</label>
-          <select id="paymentMethod" name="paymentMethod">
-            <option value="upi">UPI</option>
-            <option value="bank">Bank Transfer</option>
-            <option value="paypal">PayPal</option>
-          </select>
-        </div>
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-        <div id="uniformFields" style="display: none;">
-          <label for="uniformType">Uniform Type:</label>
-          <input type="text" id="uniformType" name="uniformType" placeholder="E.g., School Blazer, Tie" />
+  setPersistence(auth, browserLocalPersistence);
 
-          <label for="uniformSize">Size:</label>
-          <input type="text" id="uniformSize" name="uniformSize" placeholder="E.g., M, 32" />
+  const authSection = document.getElementById("authSection");
+  const userDashboard = document.getElementById("userDashboard");
+  const userInfo = document.getElementById("userInfo");
+  const authMessage = document.getElementById("authMessage");
 
-          <label for="uniformCondition">Condition:</label>
-          <select id="uniformCondition" name="uniformCondition">
-            <option value="new">New</option>
-            <option value="good">Good</option>
-            <option value="used">Used</option>
-          </select>
-        </div>
+  // Donation fields
+  const donationType = document.getElementById("donationType");
+  donationType.addEventListener("change",(e)=>{
+    document.getElementById("bookFields").style.display="none";
+    document.getElementById("moneyFields").style.display="none";
+    document.getElementById("uniformFields").style.display="none";
+    if(e.target.value==="book") document.getElementById("bookFields").style.display="block";
+    else if(e.target.value==="money") document.getElementById("moneyFields").style.display="block";
+    else if(e.target.value==="uniform") document.getElementById("uniformFields").style.display="block";
+  });
 
-        <label for="contactMessage">Additional Message:</label>
-        <textarea id="contactMessage" name="message" rows="4" placeholder="Any extra details..."></textarea>
-
-        <button type="submit" id="contactBtn">Send Message</button>
-      </form>
-      <p id="contactMessage" style="color: green; margin-top: 10px;"></p>
-    </section>
-
-  </main>
-
-  <footer>
-    <div class="container">
-      <p>© 2025 Student Art Hub — Built by Aryan</p>
-      <p><a href="contact.html">Contact Us</a> | <a href="privacy.html">Privacy Policy</a></p>
-    </div>
-  </footer>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
-      authDomain: "art-hub-77eb1.firebaseapp.com",
-      projectId: "art-hub-77eb1",
-      storageBucket: "art-hub-77eb1.appspot.com",
-      messagingSenderId: "1097170910592",
-      appId: "1:1097170910592:web:8590c10f6d0662d6881565",
-      measurementId: "G-WGQWCTTD35"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    const authSection = document.getElementById("authSection");
-    const userDashboard = document.getElementById("userDashboard");
-    const userInfo = document.getElementById("userInfo");
-    const authMessage = document.getElementById("authMessage");
-    const searchResults = document.getElementById("searchResults");
-    const contactBtn = document.getElementById("contactBtn");
-    const contactMessage = document.getElementById("contactMessage");
-
-    // Auth State Listener
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const uid = user.uid;
-        const docSnap = await getDoc(doc(db, "users", uid));
-        const role = docSnap.exists() ? docSnap.data().role : "Unknown";
-        userInfo.textContent = `Logged in as ${user.email} (${role})`;
-        authSection.style.display = "none";
-        userDashboard.style.display = "block";
-        if (role === "seller") {
-          document.getElementById("sellerOptions").style.display = "block";
-          loadListings(uid);
-        }
-      } else {
-        authSection.style.display = "block";
-        userDashboard.style.display = "none";
-      }
-    });
-
-    // Signup with loading
-    document.getElementById("signupBtn").addEventListener("click", async () => {
-      const btn = document.getElementById("signupBtn");
-      btn.textContent = "Signing Up...";
-      btn.disabled = true;
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const role = document.getElementById("roleSelect").value;
-
-      if (!email || !password || password.length < 6) {
-        authMessage.textContent = "Please fill all fields correctly (password min 6 chars).";
-        btn.textContent = "Sign Up";
-        btn.disabled = false;
-        return;
-      }
-
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const uid = userCredential.user.uid;
-        await setDoc(doc(db, "users", uid), { role });
-        authMessage.textContent = "Signup successful as " + role;
-        authMessage.style.color = "green";
-      } catch (e) {
-        authMessage.textContent = e.message;
-      } finally {
-        btn.textContent = "Sign Up";
-        btn.disabled = false;
-      }
-    });
-
-    // Login with loading
-    document.getElementById("loginBtn").addEventListener("click", async () => {
-      const btn = document.getElementById("loginBtn");
-      btn.textContent = "Logging In...";
-      btn.disabled = true;
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-
-      if (!email || !password) {
-        authMessage.textContent = "Please enter email and password.";
-        btn.textContent = "Login";
-        btn.disabled = false;
-        return;
-      }
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        authMessage.textContent = "Login successful!";
-        authMessage.style.color = "green";
-      } catch (e) {
-        authMessage.textContent = e.message;
-      } finally {
-        btn.textContent = "Login";
-        btn.disabled = false;
-      }
-    });
-
-    // Logout
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-        authMessage.textContent = "Logged out successfully.";
-        authMessage.style.color = "green";
-      } catch (e) {
-        authMessage.textContent = e.message;
-      }
-    });
-
-    // Search Functionality
-    document.getElementById("searchBtn").addEventListener("click", () => {
-      const query = document.getElementById("searchBar").value.toLowerCase();
-      const categories = ["art", "books", "sketches", "notes"];
-      const match = categories.find(cat => cat.includes(query));
-      if (match) {
-        searchResults.textContent = `Found: ${match.charAt(0).toUpperCase() + match.slice(1)} - Redirecting...`;
-        window.location.href = `${match}.html`;
-      } else {
-        searchResults.textContent = "No matches found. Try 'art', 'books', etc.";
-      }
-    });
-
-    // Modified Contact Form Submit for WhatsApp
-    document.getElementById("contactFormElement").addEventListener("submit", (e) => {
-      e.preventDefault(); // Form submit na ho
-
-      // Form data collect karo
-      const name = document.getElementById("contactName").value;
-      const email = document.getElementById("contactEmail").value;
-      const donationType = document.getElementById("donationType").value;
-      const additionalMessage = document.getElementById("contactMessage").value;
-
-      // Additional details based on donation type
-      let details = "";
-      if (donationType === "book") {
-        const bookTitle = document.getElementById("bookTitle").value;
-        const bookAuthor = document.getElementById("bookAuthor").value;
-        const bookCondition = document.getElementById("bookCondition").value;
-        details = `Book Title: ${bookTitle}, Author: ${bookAuthor}, Condition: ${bookCondition}`;
-      } else if (donationType === "money") {
-        const moneyAmount = document.getElementById("moneyAmount").value;
-        const paymentMethod = document.getElementById("paymentMethod").value;
-        details = `Amount: ₹${moneyAmount}, Payment Method: ${paymentMethod}`;
-      } else if (donationType === "uniform") {
-        const uniformType = document.getElementById("uniformType").value;
-        const uniformSize = document.getElementById("uniformSize").value;
-        const uniformCondition = document.getElementById("uniformCondition").value;
-        details = `Uniform Type: ${uniformType}, Size: ${uniformSize}, Condition: ${uniformCondition}`;
-      } else if (donationType === "other") {
-        details = "Other items";
-      }
-
-      // WhatsApp message prepare karo
-      const message = `Hi, I want to donate:\nType: ${donationType}\nName: ${name}\nEmail: ${email}\nDetails: ${details}\nAdditional Message: ${additionalMessage}`;
-
-      // WhatsApp URL banaye (number: +91 8882529632)
-      const whatsappUrl = `https://wa.me/918882529632?text=${encodeURIComponent(message)}`;
-
-      // WhatsApp open karo
-      window.open(whatsappUrl, '_blank');
-
-      // Success message show karo
-      contactMessage.textContent = "Redirecting to WhatsApp...";
-      contactMessage.style.color = "green";
-    });
-
-    // Donation Type Selection Logic
-    document.getElementById("donationType").addEventListener("change", (e) => {
-      const type = e.target.value;
-      document.getElementById("bookFields").style.display = "none";
-      document.getElementById("moneyFields").style.display = "none";
-      document.getElementById("uniformFields").style.display = "none";
-
-      if (type === "book") {
-        document.getElementById("bookFields").style.display = "block";
-      } else if (type === "money") {
-        document.getElementById("moneyFields").style.display = "block";
-      } else if (type === "uniform") {
-        document.getElementById("uniformFields").style.display = "block";
-      }
-    });
-
-    // Add Listing Button (for sellers)
-    document.getElementById("addListingBtn").addEventListener("click", async () => {
-      const title = prompt("Listing Title:");
-      const price = prompt("Price:");
-      const category = prompt("Category (art/books/etc.):");
-      if (title && price) {
-        const user = auth.currentUser;
-        if (user) {
-          await setDoc(doc(collection(db, "listings")), {
-            sellerId: user.uid,
-            title,
-            price: parseFloat(price),
-            category,
-            createdAt: new Date()
-          });
-          alert("Listing added!");
-          loadListings(user.uid);
-        }
-      }
-    });
-
-    // Load Listings Function
-    async function loadListings(sellerId) {
-      const listingsContainer = document.getElementById("listingsContainer");
-      listingsContainer.innerHTML = "";
-      const q = query(collection(db, "listings"), where("sellerId", "==", sellerId));
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        const li = document.createElement("div");
-        li.textContent = `${doc.data().title} - ₹${doc.data().price}`;
-        listingsContainer.appendChild(li);
-      });
+  // Auth state listener
+  onAuthStateChanged(auth, async(user)=>{
+    if(user){
+      const uid = user.uid;
+      const docSnap = await getDoc(doc(db,"users",uid));
+      const role = docSnap.exists()?docSnap.data().role:"Unknown";
+      userInfo.textContent = `Logged in as ${user.email} (${role})`;
+      authSection.style.display="none";
+      userDashboard.style.display="block";
+      if(role==="seller") document.getElementById("sellerOptions").style.display="block";
+      loadListings(uid);
+    }else{
+      authSection.style.display="block";
+      userDashboard.style.display="none";
     }
-  </script>
+  });
+
+  // Signup with email verification
+  document.getElementById("signupBtn").addEventListener("click", async()=>{
+    const btn = document.getElementById("signupBtn");
+    btn.textContent="Signing Up..."; btn.disabled=true;
+    const email=document.getElementById("email").value.trim();
+    const password=document.getElementById("password").value;
+    const role=document.getElementById("roleSelect").value;
+    if(!email || !password || password.length<6){
+      authMessage.textContent="Fill all fields (min 6 chars)."; btn.textContent="Sign Up"; btn.disabled=false; return;
+    }
+    try{
+      const userCredential=await createUserWithEmailAndPassword(auth,email,password);
+      const user=userCredential.user;
+      await setDoc(doc(db,"users",user.uid),{role});
+      await sendEmailVerification(user);
+      authMessage.textContent="Signup success! Verify email."; authMessage.style.color="green";
+    }catch(e){ authMessage.textContent=e.message; }finally{ btn.textContent="Sign Up"; btn.disabled=false;}
+  });
+
+  // Login
+  document.getElementById("loginBtn").addEventListener("click", async()=>{
+    const btn=document.getElementById("loginBtn"); btn.textContent="Logging In..."; btn.disabled=true;
+    const email=document.getElementById("email").value.trim(); const password=document.getElementById("password").value;
+    if(!email||!password){ authMessage.textContent="Enter email and password."; btn.textContent="Login"; btn.disabled=false; return;}
+    try{
+      const userCredential=await signInWithEmailAndPassword(auth,email,password);
+      const user=userCredential.user;
+      if(!user.emailVerified){ authMessage.textContent="Verify email first."; authMessage.style.color="red"; await signOut(auth); btn.textContent="Login"; btn.disabled=false; return;}
+      authMessage.textContent="Login successful!"; authMessage.style.color="green";
+    }catch(e){ authMessage.textContent=e.message; authMessage.style.color="red";}finally{btn.textContent="Login"; btn.disabled=false;}
+  });
+
+  // Google login
+  const googleProvider=new GoogleAuthProvider();
+  document.getElementById("googleLoginBtn").addEventListener("click", async()=>{
+    try{
+      const result=await signInWithPopup(auth,googleProvider); const user=result.user;
+      const docRef=doc(db,"users",user.uid); const docSnap=await getDoc(docRef);
+      if(!docSnap.exists()) await setDoc(docRef,{role:"buyer"});
+      authMessage.textContent="Logged in with Google!"; authMessage.style.color="green";
+    }catch(e){ authMessage.textContent=e.message; authMessage.style.color="red"; }
+  });
+
+  // Logout
+  document.getElementById("logoutBtn").addEventListener("click", async()=>{ try{ await signOut(auth); authMessage.textContent="Logged out"; authMessage.style.color="green"; }catch(e){ authMessage.textContent=e.message; } });
+
+  // Seller Listing Management
+  document.getElementById("addListingBtn").addEventListener("click", async()=>{
+    const title=prompt("Title:"); const price=prompt("Price:"); const category=prompt("Category:");
+    if(title && price){ const user=auth.currentUser; if(user){ await setDoc(doc(collection(db,"listings")), {sellerId:user.uid,title,price:parseFloat(price),category,createdAt:new Date()}); alert("Listing added!"); loadListings(user.uid); } }
+  });
+
+  async function loadListings(sellerId){
+    const container=document.getElementById("listingsContainer"); container.innerHTML="";
+    const q=query(collection(db,"listings"),where("sellerId","==",sellerId)); const querySnapshot=await getDocs(q);
+    querySnapshot.forEach(docSnap=>{
+      const data=docSnap.data(); const id=docSnap.id;
+      const div=document.createElement("div"); div.style.border="1px solid #ccc"; div.style.padding="10px"; div.style.marginBottom="10px"; div.style.borderRadius="8px";
+      div.innerHTML=`<strong>${data.title}</strong> - ₹${data.price} (${data.category})<br><button class="editBtn">Edit</button><button class="deleteBtn">Delete</button>`;
+      div.querySelector(".editBtn").onclick=async()=>{
+        const newTitle=prompt("Edit Title",data.title); const newPrice=prompt("Edit Price",data.price); const newCategory=prompt("Edit Category",data.category);
+        if(newTitle && newPrice && newCategory){ await updateDoc(doc(db,"listings",id),{title:newTitle,price:parseFloat(newPrice),category:newCategory}); alert("Updated!"); loadListings(sellerId);}
+      };
+      div.querySelector(".deleteBtn").onclick=async()=>{if(confirm("Delete listing?")){await deleteDoc(doc(db,"listings",id)); alert("Deleted!"); loadListings(sellerId);}};
+      container.appendChild(div);
+    });
+  }
+
+  // Product Listing on Homepage
+  async function loadAllListings(filter=""){
+    const container=document.getElementById("productContainer"); container.innerHTML="";
+    const querySnapshot=await getDocs(collection(db,"listings"));
+    querySnapshot.forEach(docSnap=>{
+      const data=docSnap.data(); const id=docSnap.id;
+      if(filter && !data.title.toLowerCase().includes(filter.toLowerCase()) && !data.category.toLowerCase().includes(filter.toLowerCase())) return;
+      const div=document.createElement("div");
+      div.style.border="1px solid #ccc"; div.style.padding="10px"; div.style.borderRadius="10px"; div.style.width="200px"; div.style.background="white";
+      div.innerHTML=`<strong>${data.title}</strong><br>₹${data.price}<br><em>${data.category}</em><br><br><button class="chatBtn">Chat</button><button class="whatsappBtn">WhatsApp</button>`;
+      div.querySelector(".chatBtn").onclick=async()=>{if(!auth.currentUser) return alert("Login required!"); const room={users:[auth.currentUser.uid,data.sellerId],productId:id,productTitle:data.title,messages:[],lastMessage:""}; const chatRef=doc(collection(db,"chats")); await setDoc(chatRef,room); window.location.href="chat.html?id="+chatRef.id;};
+      div.querySelector(".whatsappBtn").onclick=()=>{ const msg=`Hi, I'm interested in your product: ${data.title}`; window.open(`https://wa.me/918882529632?text=${encodeURIComponent(msg)}`,'_blank');};
+      container.appendChild(div);
+    });
+  }
+
+  loadAllListings();
+  document.getElementById("searchBtn").addEventListener("click",()=>{ const query=document.getElementById("searchBar").value.trim(); loadAllListings(query); });
+
+  // Contact Form
+  document.getElementById("contactFormElement").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    const name=document.getElementById("contactName").value;
+    const email=document.getElementById("contactEmail").value;
+    const type=document.getElementById("donationType").value;
+    const additional=document.getElementById("contactMessage").value;
+    let details="";
+    if(type==="book") details=`Book: ${document.getElementById("bookTitle").value}, Author: ${document.getElementById("bookAuthor").value}, Condition: ${document.getElementById("bookCondition").value}`;
+    else if(type==="money") details=`Amount: ₹${document.getElementById("moneyAmount").value}, Payment: ${document.getElementById("paymentMethod").value}`;
+    else if(type==="uniform") details=`Type: ${document.getElementById("uniformType").value}, Size: ${document.getElementById("uniformSize").value}, Condition: ${document.getElementById("uniformCondition").value}`;
+    else details="Other items";
+    const msg=`Hi, I want to donate:\nType: ${type}\nName: ${name}\nEmail: ${email}\nDetails: ${details}\nMessage: ${additional}`;
+    window.open(`https://wa.me/918882529632?text=${encodeURIComponent(msg)}`,'_blank');
+    document.getElementById("contactStatus").textContent="Redirecting to WhatsApp...";
+  });
+
+</script>
 
 </body>
-
 </html>
