@@ -1,42 +1,453 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Custom Sketches - Student Art Hub</title>
-    <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Custom Sketches - Student Art Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .container{max-width:1000px;margin:0 auto;padding:16px}
+    header nav a{margin-right:10px}
+    .card{border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px;width:240px}
+    .grid{display:flex;flex-wrap:wrap;gap:12px}
+    .small{font-size:0.9rem;color:#555}
+    .stars{cursor:pointer;display:inline-block}
+    .seller-panel{border:1px solid #ccc;padding:12px;border-radius:8px;margin-top:12px}
+    .modal{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:999}
+    .modal .box{background:#fff;padding:16px;border-radius:8px;width:90%;max-width:480px}
+  </style>
 </head>
 <body>
 <header>
-    <div class="container">
-        <h1>Student Art Hub</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="art.html">Art Showcase</a>
-            <a href="books.html">Book Exchange</a>
-            <a href="sketches.html">Custom Sketches</a>
-            <a href="notes.html">Handwritten Notes</a>
-        </nav>
-    </div>
+  <div class="container">
+    <h1>Student Art Hub</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="art.html">Art Showcase</a>
+      <a href="books.html">Book Exchange</a>
+      <a href="sketches.html">Custom Sketches</a>
+      <a href="notes.html">Handwritten Notes</a>
+          <a href="donations.html">Donations</a>
+    </nav>
+  </div>
 </header>
 
 <main class="container">
-    <section>
-        <h2>Request a Custom Sketch</h2>
-        <form id="sketchForm">
-            <input type="text" id="sketchDesc" placeholder="Describe the sketch (portrait, landscape...)" required>
-            <select id="size">
-                <option value="a4">A4 (₹300)</option>
-                <option value="a3">A3 (₹500)</option>
-            </select>
-            <button type="submit">Request Sketch</button>
-        </form>
-    </section>
+  <section>
+    <h2>Custom Sketches</h2>
+    <p class="small">Buy custom sketches from student artists — request a sketch, message the artist, and rate their work.</p>
+
+    <!-- Upload (visible when logged in) -->
+    <div id="uploadSection" style="display:none;margin-top:12px;">
+      <h3>Upload a Sketch Offer</h3>
+      <input id="sketchTitle" placeholder="Title (e.g. Portrait Sketch)"><br><br>
+      <textarea id="sketchDesc" placeholder="Short description (size, style, delivery time)"></textarea><br><br>
+      <label>Price A4 (₹)</label>
+      <input type="number" id="priceA4" min="0" placeholder="300"><br><br>
+      <label>Price A3 (₹)</label>
+      <input type="number" id="priceA3" min="0" placeholder="500"><br><br>
+      <input type="file" id="sketchImage" accept="image/*"><br><br>
+      <button id="uploadSketchBtn">Upload Sketch Offer</button>
+      <div id="uploadMsg" class="small" style="margin-top:8px;color:green"></div>
+    </div>
+
+    <!-- Seller panel (orders) -->
+    <div id="sellerPanel" class="seller-panel" style="display:none;">
+      <h3>Your Seller Dashboard</h3>
+      <div id="yourSketches" style="margin-bottom:12px"></div>
+      <h4>Incoming Orders</h4>
+      <div id="sellerOrders"></div>
+    </div>
+
+    <hr>
+
+    <!-- Gallery -->
+    <h3>Available Sketches</h3>
+    <div style="margin-bottom:8px;">
+      <input id="searchInput" placeholder="Search by title or description">
+      <button id="searchBtn">Search</button>
+    </div>
+    <div id="gallery" class="grid"></div>
+  </section>
 </main>
 
-<footer>
-    <div class="container"><p>© 2025 Student Art Hub</p></div>
+<!-- Request Modal -->
+<div id="requestModal" class="modal">
+  <div class="box">
+    <h3>Request Sketch</h3>
+    <div id="modalSketchInfo"></div>
+    <label>Your name</label><br>
+    <input id="reqName" placeholder="Your name"><br><br>
+    <label>Your WhatsApp number (with country code, e.g. +91...) *</label><br>
+    <input id="reqPhone" placeholder="+91xxxxxxxxxx"><br><br>
+    <label>Extra notes / reference</label><br>
+    <textarea id="reqNotes" placeholder="Anything to add..."></textarea><br><br>
+    <button id="sendRequestBtn">Send Request (Save + WhatsApp)</button>
+    <button id="closeModalBtn" style="margin-left:8px">Cancel</button>
+    <div id="reqMsg" class="small" style="margin-top:8px;color:green"></div>
+  </div>
+</div>
+
+<footer style="margin-top:20px">
+  <div class="container"><p>© 2025 Student Art Hub</p></div>
 </footer>
-<script src="script.js"></script>
+
+<script type="module">
+/* ===== Firebase imports ===== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, getDocs, query, where, onSnapshot,
+  doc, updateDoc, serverTimestamp, getDoc
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
+
+/* ===== Firebase config (use yours) ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+  authDomain: "art-hub-77eb1.firebaseapp.com",
+  projectId: "art-hub-77eb1",
+  storageBucket: "art-hub-77eb1.appspot.com",
+  messagingSenderId: "1097170910592",
+  appId: "1:1097170910592:web:8590c10f6d0662d6881565"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+/* ===== DOM refs ===== */
+const uploadSection = document.getElementById('uploadSection');
+const uploadSketchBtn = document.getElementById('uploadSketchBtn');
+const uploadMsg = document.getElementById('uploadMsg');
+const gallery = document.getElementById('gallery');
+const searchInput = document.getElementById('searchInput');
+const requestModal = document.getElementById('requestModal');
+const modalSketchInfo = document.getElementById('modalSketchInfo');
+const reqName = document.getElementById('reqName');
+const reqPhone = document.getElementById('reqPhone');
+const reqNotes = document.getElementById('reqNotes');
+const sendRequestBtn = document.getElementById('sendRequestBtn');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const reqMsg = document.getElementById('reqMsg');
+
+const sellerPanel = document.getElementById('sellerPanel');
+const yourSketches = document.getElementById('yourSketches');
+const sellerOrders = document.getElementById('sellerOrders');
+
+let sketches = []; // local cache
+let currentUser = null;
+let activeSketchId = null;
+
+/* ===== Auth state ===== */
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  if (user) {
+    // show upload & seller panel for any logged in user (who wants to sell)
+    uploadSection.style.display = 'block';
+    sellerPanel.style.display = 'block';
+    // load content
+    await loadGallery();
+    loadSellerSketches(user.uid);
+    watchSellerOrders(user.uid);
+  } else {
+    uploadSection.style.display = 'none';
+    sellerPanel.style.display = 'none';
+    await loadGallery(); // still show gallery
+  }
+});
+
+/* ===== Upload sketch (seller) ===== */
+uploadSketchBtn.addEventListener('click', async () => {
+  const title = document.getElementById('sketchTitle').value?.trim();
+  const desc = document.getElementById('sketchDesc').value?.trim();
+  const priceA4 = parseInt(document.getElementById('priceA4').value || 0);
+  const priceA3 = parseInt(document.getElementById('priceA3').value || 0);
+  const file = document.getElementById('sketchImage').files[0];
+
+  if (!title || !desc || !file || (!priceA4 && !priceA3)) {
+    uploadMsg.style.color = 'red';
+    uploadMsg.textContent = 'Fill title, description, at least one price and select image.';
+    return;
+  }
+
+  try {
+    uploadMsg.style.color = 'black';
+    uploadMsg.textContent = 'Uploading image...';
+
+    // upload image
+    const fname = Date.now() + '_' + file.name;
+    const sRef = storageRef(storage, 'sketch_images/' + fname);
+    await uploadBytes(sRef, file);
+    const imageUrl = await getDownloadURL(sRef);
+
+    // seller info
+    const sellerName = currentUser.displayName || currentUser.email || 'Artist';
+    const sellerPhone = currentUser.phoneNumber || '';
+
+    // save sketch doc
+    const docRef = await addDoc(collection(db, 'sketches'), {
+      title,
+      description: desc,
+      priceA4: priceA4 || null,
+      priceA3: priceA3 || null,
+      imageUrl,
+      sellerId: currentUser.uid,
+      sellerName,
+      sellerPhone,
+      avgRating: 0,
+      totalRatings: 0,
+      createdAt: serverTimestamp()
+    });
+
+    uploadMsg.style.color = 'green';
+    uploadMsg.textContent = 'Sketch uploaded!';
+    // clear fields
+    document.getElementById('sketchTitle').value = '';
+    document.getElementById('sketchDesc').value = '';
+    document.getElementById('priceA4').value = '';
+    document.getElementById('priceA3').value = '';
+    document.getElementById('sketchImage').value = '';
+
+    await loadGallery();
+    loadSellerSketches(currentUser.uid);
+  } catch (e) {
+    console.error(e);
+    uploadMsg.style.color = 'red';
+    uploadMsg.textContent = e.message || 'Upload failed';
+  }
+});
+
+/* ===== Load gallery (all sketches) ===== */
+async function loadGallery(search = '') {
+  gallery.innerHTML = '';
+  sketches = [];
+  const snap = await getDocs(collection(db, 'sketches'));
+  snap.forEach(s => {
+    const d = { id: s.id, ...s.data() };
+    sketches.push(d);
+  });
+  renderGallery(sketches.filter(k => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (k.title && k.title.toLowerCase().includes(q)) || (k.description && k.description.toLowerCase().includes(q));
+  }));
+}
+
+function renderGallery(list) {
+  gallery.innerHTML = '';
+  list.forEach(sketch => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <img src="${sketch.imageUrl}" alt="${escapeHtml(sketch.title)}" style="width:100%;height:150px;object-fit:cover;border-radius:6px"><br>
+      <strong>${escapeHtml(sketch.title)}</strong><br>
+      <span class="small">By: ${escapeHtml(sketch.sellerName || 'Artist')}</span><br>
+      <span class="small">Price A4: ${sketch.priceA4 ? '₹' + sketch.priceA4 : 'N/A'} | A3: ${sketch.priceA3 ? '₹' + sketch.priceA3 : 'N/A'}</span><br>
+      <div style="margin-top:8px">${escapeHtml(sketch.description || '')}</div>
+      <div style="margin-top:8px">Rating: <span id="avg-${sketch.id}">${sketch.avgRating?.toFixed(1) || '0.0'}</span> (${sketch.totalRatings || 0})</div>
+      <div style="margin-top:8px">
+        <button class="reqBtn">Request</button>
+        <button class="rateBtn">Rate</button>
+      </div>
+    `;
+    // request button
+    card.querySelector('.reqBtn').onclick = () => openRequestModal(sketch.id);
+    // rate button
+    card.querySelector('.rateBtn').onclick = () => openRatingPrompt(sketch.id);
+    gallery.appendChild(card);
+  });
+}
+
+/* ===== Search ===== */
+document.getElementById('searchBtn').addEventListener('click', ()=> {
+  loadGallery(searchInput.value.trim());
+});
+searchInput.addEventListener('keyup', (e)=> {
+  if(e.key === 'Enter') loadGallery(searchInput.value.trim());
+});
+
+/* ===== Request modal logic ===== */
+function openRequestModal(sketchId) {
+  activeSketchId = sketchId;
+  const sk = sketches.find(s => s.id === sketchId);
+  modalSketchInfo.innerHTML = `
+    <strong>${escapeHtml(sk.title)}</strong><br>
+    By: ${escapeHtml(sk.sellerName)}<br>
+    Price A4: ${sk.priceA4 ? '₹'+sk.priceA4 : 'N/A'} | A3: ${sk.priceA3 ? '₹'+sk.priceA3 : 'N/A'}<br><br>
+  `;
+  reqMsg.textContent = '';
+  // prefill buyer info if logged in
+  if (currentUser) {
+    reqName.value = currentUser.displayName || currentUser.email || '';
+    reqPhone.value = currentUser.phoneNumber || '';
+  } else {
+    reqName.value = '';
+    reqPhone.value = '';
+  }
+  requestModal.style.display = 'flex';
+}
+
+closeModalBtn.addEventListener('click', ()=> { requestModal.style.display = 'none'; });
+
+/* ===== Send request (save order + open WhatsApp to seller) ===== */
+sendRequestBtn.addEventListener('click', async () => {
+  if(!activeSketchId) return;
+  const name = reqName.value.trim();
+  const phone = reqPhone.value.trim();
+  const notes = reqNotes.value.trim();
+  if(!phone){ reqMsg.style.color='red'; reqMsg.textContent = 'WhatsApp number required.'; return; }
+
+  try {
+    const skRef = doc(db, 'sketches', activeSketchId);
+    const skSnap = await getDoc(skRef);
+    if(!skSnap.exists()){ reqMsg.style.color='red'; reqMsg.textContent = 'Sketch not found.'; return; }
+    const sk = { id: skSnap.id, ...skSnap.data() };
+
+    // choose price: prefer A4 if available else A3
+    const price = sk.priceA4 || sk.priceA3 || 0;
+
+    // save order
+    await addDoc(collection(db, 'sketchOrders'), {
+      sketchId: sk.id,
+      sketchTitle: sk.title,
+      sellerId: sk.sellerId,
+      sellerName: sk.sellerName,
+      sellerPhone: sk.sellerPhone || '',
+      buyerId: currentUser ? currentUser.uid : null,
+      buyerName: name || (currentUser ? (currentUser.displayName || currentUser.email) : ''),
+      buyerPhone: phone,
+      notes: notes || '',
+      price,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+
+    // Open WhatsApp to seller
+    const sellerPhone = (sk.sellerPhone || '').replace(/\s+/g,'').replace('+','');
+    const buyerDisplay = name || (currentUser ? (currentUser.displayName || currentUser.email) : 'Buyer');
+    const msg = `Hi ${sk.sellerName || 'Artist'},%0AI want to order your sketch: *${sk.title}*%0APrice: ₹${price}%0AName: ${buyerDisplay}%0APhone: ${phone}%0ANotes: ${notes || '—'}%0AThanks!`;
+    if(sellerPhone){
+      // open chat window for seller
+      window.open(`https://wa.me/${sellerPhone}?text=${msg}`, '_blank');
+    } else {
+      // if seller has no phone stored, just show an alert
+      alert('Order saved. Seller has no phone number on record; they can see the order in their dashboard.');
+    }
+
+    reqMsg.style.color='green';
+    reqMsg.textContent = 'Request sent! WhatsApp opened (if seller number present).';
+    // reset & close modal after short delay
+    setTimeout(()=>{ requestModal.style.display='none'; reqMsg.textContent=''; reqNotes.value=''; }, 1200);
+  } catch (e) {
+    console.error(e);
+    reqMsg.style.color='red';
+    reqMsg.textContent = e.message || 'Error sending request';
+  }
+});
+
+/* ===== Seller: load their sketches (for management & orders association) ===== */
+async function loadSellerSketches(uid){
+  yourSketches.innerHTML = '';
+  // listen to sketches collection and filter by sellerId
+  const q = query(collection(db, 'sketches'), where('sellerId','==', uid));
+  onSnapshot(q, snapshot => {
+    yourSketches.innerHTML = '';
+    snapshot.forEach(docSnap => {
+      const s = { id: docSnap.id, ...docSnap.data() };
+      const div = document.createElement('div');
+      div.style.border = '1px solid #eee';
+      div.style.padding = '8px';
+      div.style.marginBottom = '8px';
+      div.innerHTML = `
+        <strong>${escapeHtml(s.title)}</strong><br>
+        ₹${s.priceA4||'N/A' } / ${s.priceA3||'N/A'}<br>
+        <img src="${s.imageUrl}" style="width:140px;height:80px;object-fit:cover;border-radius:6px;margin-top:6px"><br>
+        <button class="delBtn">Delete</button>
+      `;
+      div.querySelector('.delBtn').onclick = async () => {
+        if(!confirm('Delete this sketch?')) return;
+        try {
+          // do not delete storage file here (simpler), but you can add deletion if wanted
+          await updateDoc(doc(db,'sketches', s.id), { deleted: true });
+          alert('Marked deleted (you may also remove storage file via console).');
+        } catch(e) { alert('Error: '+e.message); }
+      };
+      yourSketches.appendChild(div);
+    });
+  });
+}
+
+/* ===== Seller: watch incoming orders ===== */
+function watchSellerOrders(sellerUid){
+  const q = query(collection(db, 'sketchOrders'), where('sellerId','==', sellerUid));
+  onSnapshot(q, snapshot => {
+    sellerOrders.innerHTML = '';
+    snapshot.forEach(docSnap => {
+      const o = { id: docSnap.id, ...docSnap.data() };
+      const div = document.createElement('div');
+      div.style.border = '1px solid #ddd'; div.style.padding = '8px'; div.style.marginBottom = '8px'; div.style.borderRadius='6px';
+      div.innerHTML = `
+        <strong>${escapeHtml(o.sketchTitle)}</strong><br>
+        Buyer: ${escapeHtml(o.buyerName||'—')} (${escapeHtml(o.buyerPhone||'—')})<br>
+        Price: ₹${o.price}<br>
+        Notes: ${escapeHtml(o.notes||'—')}<br>
+        Status: <span id="status-${o.id}">${escapeHtml(o.status)}</span><br>
+        <button class="markDone">Mark done</button>
+      `;
+      div.querySelector('.markDone').onclick = async () => {
+        try {
+          await updateDoc(doc(db, 'sketchOrders', o.id), { status: 'completed' });
+        } catch(e){ alert('Error: '+e.message); }
+      };
+      sellerOrders.appendChild(div);
+    });
+  });
+}
+
+/* ===== Rating: open prompt and save ===== */
+function openRatingPrompt(sketchId){
+  const rating = prompt('Rate this sketch 1-5 (enter a number):');
+  const r = parseInt(rating);
+  if(!r || r < 1 || r > 5){ alert('Invalid rating'); return; }
+  saveRating(sketchId, r);
+}
+
+async function saveRating(sketchId, stars){
+  try {
+    // Save rating doc
+    await addDoc(collection(db, 'sketchRatings'), {
+      sketchId,
+      userId: currentUser ? currentUser.uid : null,
+      stars,
+      createdAt: serverTimestamp()
+    });
+
+    // update aggregate on sketch doc: fetch current, compute new avg
+    const skRef = doc(db, 'sketches', sketchId);
+    const skSnap = await getDoc(skRef);
+    if(skSnap.exists()){
+      const data = skSnap.data();
+      const prevAvg = data.avgRating || 0;
+      const prevCount = data.totalRatings || 0;
+      const newCount = prevCount + 1;
+      const newAvg = ((prevAvg * prevCount) + stars) / newCount;
+      await updateDoc(skRef, { avgRating: newAvg, totalRatings: newCount });
+      // refresh gallery display
+      await loadGallery(searchInput.value.trim());
+      alert('Thanks for rating!');
+    }
+  } catch(e){
+    console.error(e);
+    alert('Rating failed: '+ (e.message || ''));
+  }
+}
+
+/* ===== Helpers ===== */
+function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+
+</script>
 </body>
 </html>
+
