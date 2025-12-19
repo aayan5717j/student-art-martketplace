@@ -1,192 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Student Art Hub — Marketplace</title>
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    /* small inline tweaks to make display decent without CSS file */
-    .container{max-width:1000px;margin:0 auto;padding:16px}
-    header nav a{margin-right:10px}
-    .hero, #authSection, #productListing{margin:16px 0}
-    img.listing-img{width:100%;height:140px;object-fit:cover;border-radius:8px}
-    .listing-card{width:200px;background:white;padding:8px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Student Art Hub: Buy, sell, and exchange student-made art, books, sketches, and notes at affordable prices." />
+  <meta name="keywords" content="student art, marketplace, buy sell art, custom sketches, handwritten notes, book exchange" />
+  <title>Student Art Hub</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#f2f2f2}
+header{background:#1e3a8a;color:#fff;padding:15px}
+nav a{color:#fff;margin:0 10px;text-decoration:none;font-weight:bold}
+.container{padding:20px}
+.hero{background:#fff;padding:30px;border-radius:10px}
+input,select,button,textarea{padding:8px;margin:5px;width:100%;max-width:320px}
+button{cursor:pointer;background:#1e3a8a;color:#fff;border:none;border-radius:5px}
+.grid{display:flex;gap:15px;flex-wrap:wrap}
+.card{background:#fff;padding:15px;border-radius:10px;width:220px}
+footer{background:#111;color:#fff;text-align:center;padding:15px;margin-top:40px}
+</style>
 </head>
+
 <body>
+
 <header>
-  <div class="container">
-    <h1>Student Art Hub</h1>
-    <nav>
-      <a href="index.html">Home</a>
+  <h2>Student Art Hub</h2>
+  <nav>
+          <a href="index.html">Home</a>
       <a href="art.html">Art Showcase</a>
       <a href="books.html">Book Exchange</a>
       <a href="sketches.html">Custom Sketches</a>
       <a href="notes.html">Handwritten Notes</a>
       <a href="donations.html">Donations</a>
-      <a href="sellers.html">Sellers</a>
-    </nav>
-  </div>
+  </nav>
 </header>
 
-<main class="container">
+<div class="container">
 
-  <!-- HERO -->
-  <section class="hero">
-    <h2>Buy • Sell • Exchange — Student-made</h2>
-    <p>Discover student artworks, second-hand books, notes and sketches.</p>
-    <input type="text" id="searchBar" placeholder="Search listings..." />
-    <button id="searchBtn">Search</button>
-  </section>
+<!-- HERO -->
+<section class="hero">
+  <h2>Buy • Sell • Exchange — Student-made</h2>
+  <p>Artworks, books, sketches & handwritten notes</p>
+  <input id="searchBar" placeholder="Search..." />
+  <button id="searchBtn">Search</button>
+</section>
 
-  <!-- AUTH -->
-  <section id="authSection">
-    <h2>Login / Signup</h2>
-    <form id="authForm" onsubmit="return false;">
-      <label>Choose Login Method:</label><br>
-      <input type="radio" id="emailMethod" name="method" value="email" checked> Email
-      <input type="radio" id="phoneMethod" name="method" value="phone" style="margin-left:16px"> Phone Number
-      <hr>
+<!-- AUTH -->
+<section id="authSection">
+  <h3>Login / Signup</h3>
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <select id="role">
+    <option value="buyer">Buyer</option>
+    <option value="seller">Seller</option>
+  </select><br>
+  <button id="signupBtn">Sign Up</button>
+  <button id="loginBtn">Login</button>
+  <p id="authMsg"></p>
+</section>
 
-      <!-- EMAIL FIELDS -->
-      <div id="emailFields">
-        <label>Email:</label><br>
-        <input type="email" id="email" placeholder="you@example.com" /><br>
-        <label>Password:</label><br>
-        <input type="password" id="password" placeholder="min 6 chars" /><br>
-        <button type="button" id="signupBtn">Sign Up</button>
-        <button type="button" id="loginBtn">Login</button>
-        <button type="button" id="googleLoginBtn" style="background:#4285F4;color:white;margin-top:8px;">Login with Google</button>
-      </div>
+<!-- DASHBOARD -->
+<section id="dashboard" style="display:none">
+  <h3>User Dashboard</h3>
+  <p id="userInfo"></p>
+  <button id="logoutBtn">Logout</button>
 
-      <!-- PHONE FIELDS -->
-      <div id="phoneFields" style="display:none;">
-        <label>Phone:</label><br>
-        <input type="tel" id="phoneNumber" placeholder="+91XXXXXXXXXX" /><br>
-        <div id="recaptcha-container" style="margin:8px 0"></div>
-        <button type="button" id="sendOtpBtn">Send OTP</button><br><br>
+  <div id="sellerPanel" style="display:none">
+    <h4>Add Listing</h4>
+    <input id="titleInput" placeholder="Title">
+    <input id="priceInput" placeholder="Price">
+    <input id="categoryInput" placeholder="Category">
+    <button id="addBtn">Upload</button>
 
-        <input type="text" id="otpInput" placeholder="Enter OTP" style="display:none;" />
-        <button type="button" id="verifyOtpBtn" style="display:none;">Verify OTP</button>
-        <p id="phoneMessage" style="color:red;"></p>
-      </div>
-
-    </form>
-    <p id="authMessage" style="color:red;"></p>
-  </section>
-
-  <!-- USER DASHBOARD (after login) -->
-  <section id="userDashboard" style="display:none;">
-    <h2>Welcome back!</h2>
-    <p id="userInfo"></p>
-    <button id="logoutBtn">Logout</button>
-    <hr>
-
-    <!-- UPLOAD SECTION (visible to all logged-in users) -->
-    <div id="uploadSection" style="margin-top:12px;">
-      <h3>Upload Listing (notes/book/art)</h3>
-      <input type="text" id="listingTitle" placeholder="Title" /><br>
-      <input type="number" id="listingPrice" placeholder="Price (₹)" min="1" /><br>
-      <input type="text" id="listingCategory" placeholder="Category (e.g., Notes, Book, Art)" /><br>
-      <!-- image -->
-      <input type="file" id="listingImage" accept="image/*" /><br><br>
-      <button id="uploadListingBtn">Upload Listing</button>
-    </div>
-
-    <div id="listingsContainer"></div>
-  </section>
-
-  <!-- PRODUCT LISTINGS -->
-  <section id="productListing">
-    <h2>Available Listings</h2>
-    <div id="productContainer" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
-  </section>
-
-  <!-- CART -->
-  <div id="cart" style="position:fixed;top:80px;right:20px;width:300px;background:#fff;border:1px solid #ccc;padding:10px;display:none;z-index:1000;">
-    <h3>Cart</h3>
-    <ul id="cartItems"></ul>
-    <strong>Total: ₹<span id="cartTotal">0</span></strong><br><br>
-    <button id="checkoutBtn">Checkout</button>
-    <button id="closeCart">Close</button>
+    <h4>Your Listings</h4>
+    <div id="myListings"></div>
   </div>
-  <button id="openCart" style="position:fixed;top:20px;right:20px;z-index:1000;">🛒 Cart</button>
+</section>
 
-  <!-- CONTACT -->
-  <section id="contactForm" style="margin-top:20px;">
-    <h2>Contact / Donate</h2>
-    <form id="contactFormElement">
-      <label>Name:</label><br><input type="text" id="contactName" required /><br>
-      <label>Email:</label><br><input type="email" id="contactEmail" required /><br>
-      <label>Donation Type:</label><br>
-      <select id="donationType" required>
-        <option value="">Select</option><option value="book">Book</option><option value="money">Money</option><option value="uniform">Uniform</option><option value="other">Other</option>
-      </select><br><br>
-      <div id="donationExtra"></div>
-      <textarea id="contactMessage" rows="3" placeholder="Message"></textarea><br>
-      <button type="submit">Send</button>
-    </form>
-    <p id="contactStatus" style="color:green"></p>
-  </section>
+<!-- PRODUCTS -->
+<h3>Available Listings</h3>
+<div id="productContainer" class="grid"></div>
 
-</main>
+<!-- DONATION -->
+<section>
+  <h3>Donate</h3>
+  <input id="donateName" placeholder="Your Name">
+  <select id="donateType">
+    <option value="book">Book</option>
+    <option value="money">Money</option>
+    <option value="other">Other</option>
+  </select>
+  <textarea id="donateMsg" placeholder="Message"></textarea>
+  <button id="donateBtn">Donate via WhatsApp</button>
+</section>
 
-<footer style="margin-top:30px">
-  <div class="container">
-    <p>© 2025 Student Art Hub — Built by Aryan</p>
-  </div>
+</div>
+
+<footer>
+<p>© 2025 Student Art Hub — Built by Aryan</p>
 </footer>
 
-<!-- Razorpay -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
+<!-- FIREBASE -->
 <script type="module">
-/* ====== FIREBASE + APP LOGIC ====== */
-/* Imports */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-
 import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged,
-  GoogleAuthProvider,
-  signInWithPopup,
-  sendEmailVerification,
-  setPersistence,
-  browserLocalPersistence,
-  signInWithPhoneNumber,
-  RecaptchaVerifier
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-
 import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+  getDatabase,
+  ref,
+  set,
+  push,
+  onValue,
+  remove,
+  update
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
 
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
-
-/* Firebase config - keep as you had */
 const firebaseConfig = {
   apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
   authDomain: "art-hub-77eb1.firebaseapp.com",
+  databaseURL: "https://art-hub-77eb1-default-rtdb.firebaseio.com",
   projectId: "art-hub-77eb1",
   storageBucket: "art-hub-77eb1.appspot.com",
   messagingSenderId: "1097170910592",
@@ -195,351 +132,88 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+const db = getDatabase(app);
 
-/* Keep session across reloads */
-setPersistence(auth, browserLocalPersistence);
+signupBtn.onclick = async ()=>{
+  await createUserWithEmailAndPassword(auth,email.value,password.value);
+  authMsg.textContent="Signup successful";
+};
 
-/* DOM refs */
-const authSection = document.getElementById("authSection");
-const userDashboard = document.getElementById("userDashboard");
-const userInfo = document.getElementById("userInfo");
-const authMessage = document.getElementById("authMessage");
-const phoneMessage = document.getElementById("phoneMessage");
-const uploadSection = document.getElementById("uploadSection");
-const listingsContainer = document.getElementById("listingsContainer");
-const productContainer = document.getElementById("productContainer");
+loginBtn.onclick = async ()=>{
+  await signInWithEmailAndPassword(auth,email.value,password.value);
+};
 
-/* Cart */
-let cart = [];
-const cartDiv = document.getElementById("cart");
-const cartItemsEl = document.getElementById("cartItems");
-const cartTotalEl = document.getElementById("cartTotal");
+logoutBtn.onclick = ()=>signOut(auth);
 
-/* Toggle between email & phone UI */
-document.getElementById("emailMethod").addEventListener("change", () => {
-  document.getElementById("emailFields").style.display = "block";
-  document.getElementById("phoneFields").style.display = "none";
-  authMessage.textContent = ""; phoneMessage.textContent = "";
-});
-document.getElementById("phoneMethod").addEventListener("change", () => {
-  document.getElementById("emailFields").style.display = "none";
-  document.getElementById("phoneFields").style.display = "block";
-  authMessage.textContent = ""; phoneMessage.textContent = "";
-});
+onAuthStateChanged(auth,user=>{
+  if(user){
+    authSection.style.display="none";
+    dashboard.style.display="block";
+    userInfo.textContent="Logged in as "+user.email;
 
-/* show dashboard & allow upload for any logged-in user */
-async function showDashboardFor(user){
-  try {
-    // ensure user doc exists
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
-    if(!snap.exists()) await setDoc(ref, { createdAt: serverTimestamp() }, { merge: true });
-  } catch(e) { console.error("user doc create error", e); }
-
-  userInfo.textContent = `Logged in as ${user.email || user.phoneNumber}`;
-  authSection.style.display = "none";
-  userDashboard.style.display = "block";
-  uploadSection.style.display = "block";
-  loadListingsForOwner(user.uid);
-}
-
-/* Auth state */
-onAuthStateChanged(auth, async (user) => {
-  if(user) {
-    await showDashboardFor(user);
-  } else {
-    authSection.style.display = "block";
-    userDashboard.style.display = "none";
-    uploadSection.style.display = "none";
+    if(role.value==="seller") sellerPanel.style.display="block";
+    loadAllListings();
+    loadMyListings(user.uid);
+  }else{
+    authSection.style.display="block";
+    dashboard.style.display="none";
   }
 });
 
-/* --------- EMAIL SIGNUP --------- */
-document.getElementById("signupBtn").addEventListener("click", async () => {
-  const btn = document.getElementById("signupBtn");
-  btn.textContent = "Signing Up..."; btn.disabled = true;
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  if(!email || !password || password.length < 6){
-    authMessage.textContent = "Fill fields (min 6 chars)"; btn.textContent="Sign Up"; btn.disabled=false; return;
-  }
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    await setDoc(doc(db, "users", user.uid), { createdAt: serverTimestamp() });
-    await sendEmailVerification(user);
-    authMessage.style.color = "green"; authMessage.textContent = "Signup success — check email for verification";
-  } catch(e){
-    authMessage.style.color = "red"; authMessage.textContent = e.message;
-  } finally { btn.textContent = "Sign Up"; btn.disabled = false; }
-});
-
-/* --------- EMAIL LOGIN --------- */
-document.getElementById("loginBtn").addEventListener("click", async () => {
-  const btn = document.getElementById("loginBtn");
-  btn.textContent = "Logging In..."; btn.disabled = true;
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  if(!email || !password){ authMessage.textContent = "Enter email & password"; btn.textContent="Login"; btn.disabled=false; return; }
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    if(!user.emailVerified){
-      authMessage.style.color = "red";
-      authMessage.textContent = "Verify email first.";
-      await signOut(auth);
-      btn.textContent="Login"; btn.disabled=false; return;
-    }
-    authMessage.style.color = "green"; authMessage.textContent = "Login successful!";
-    // immediate show
-    await showDashboardFor(user);
-  } catch(e){
-    authMessage.style.color = "red"; authMessage.textContent = e.message;
-  } finally { btn.textContent = "Login"; btn.disabled = false; }
-});
-
-/* --------- GOOGLE LOGIN --------- */
-const googleProvider = new GoogleAuthProvider();
-document.getElementById("googleLoginBtn").addEventListener("click", async () => {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-    const docRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(docRef);
-    if(!docSnap.exists()) await setDoc(docRef, { createdAt: serverTimestamp() });
-    authMessage.style.color = "green"; authMessage.textContent = "Logged in with Google!";
-    await showDashboardFor(user);
-  } catch(e){
-    authMessage.style.color = "red"; authMessage.textContent = e.message;
-  }
-});
-
-/* --------- LOGOUT --------- */
-document.getElementById("logoutBtn").addEventListener("click", async () => {
-  try { await signOut(auth); authMessage.style.color="green"; authMessage.textContent="Logged out"; }
-  catch(e){ authMessage.textContent = e.message; }
-});
-
-/* --------- PHONE AUTH (OTP) --------- */
-// create visible recaptcha
-window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
-  size: 'normal'
-}, auth);
-
-document.getElementById("sendOtpBtn").addEventListener("click", async () => {
-  const phone = document.getElementById("phoneNumber").value.trim();
-  phoneMessage.style.color = "red";
-  if(!phone){ phoneMessage.textContent = "Enter phone number"; return; }
-  try {
-    phoneMessage.textContent = "Sending OTP...";
-    const appVerifier = window.recaptchaVerifier;
-    const confirmationResult = await signInWithPhoneNumber(auth, phone, appVerifier);
-    window.confirmationResult = confirmationResult;
-    phoneMessage.style.color = "green";
-    phoneMessage.textContent = "OTP sent — enter below";
-    document.getElementById("otpInput").style.display = "inline-block";
-    document.getElementById("verifyOtpBtn").style.display = "inline-block";
-  } catch(e){
-    phoneMessage.style.color = "red";
-    phoneMessage.textContent = e.message;
-    // reset recaptcha
-    try { window.recaptchaVerifier.clear(); } catch(err) {}
-    window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', { size: 'normal' }, auth);
-  }
-});
-
-document.getElementById("verifyOtpBtn").addEventListener("click", async () => {
-  const code = document.getElementById("otpInput").value.trim();
-  if(!code){ phoneMessage.textContent = "Enter OTP"; return; }
-  try {
-    const result = await window.confirmationResult.confirm(code);
-    const user = result.user;
-    // ensure user doc exists
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
-    if(!snap.exists()) await setDoc(ref, { createdAt: serverTimestamp() });
-    phoneMessage.style.color = "green";
-    phoneMessage.textContent = "Phone login successful!";
-    await showDashboardFor(user);
-  } catch(e){
-    phoneMessage.style.color = "red";
-    phoneMessage.textContent = e.message;
-  }
-});
-
-/* --------- UPLOAD LISTING (with image to Storage + Firestore) --------- */
-document.getElementById("uploadListingBtn").addEventListener("click", async () => {
-  const title = document.getElementById("listingTitle").value.trim();
-  const price = parseInt(document.getElementById("listingPrice").value);
-  const category = document.getElementById("listingCategory").value.trim();
-  const fileInput = document.getElementById("listingImage");
-  if(!title || !price || !category || !fileInput.files[0]){ alert("Fill all fields and choose an image"); return; }
-  const file = fileInput.files[0];
-  try {
-    const user = auth.currentUser;
-    if(!user) return alert("Login required");
-
-    // upload image
-    const path = `listing_images/${Date.now()}_${file.name}`;
-    const sRef = storageRef(storage, path);
-    await uploadBytes(sRef, file);
-    const imgURL = await getDownloadURL(sRef);
-
-    // save listing in Firestore
-    const newDoc = await addDoc(collection(db, "listings"), {
-      sellerId: user.uid,
-      title,
-      price,
-      category,
-      imageURL: imgURL,
-      createdAt: serverTimestamp()
-    });
-
-    alert("Listing uploaded!");
-    // clear inputs
-    document.getElementById("listingTitle").value = "";
-    document.getElementById("listingPrice").value = "";
-    document.getElementById("listingCategory").value = "";
-    fileInput.value = "";
-
-    // refresh lists
-    loadAllListings(); loadListingsForOwner(user.uid);
-  } catch(e){
-    alert("Upload error: " + e.message);
-  }
-});
-
-/* --------- Load listings for owner (manage own listings) --------- */
-async function loadListingsForOwner(ownerId){
-  const container = listingsContainer;
-  container.innerHTML = "";
-  try {
-    const q = query(collection(db, "listings"), where("sellerId", "==", ownerId));
-    const snap = await getDocs(q);
-    snap.forEach(docSnap => {
-      const data = docSnap.data(); const id = docSnap.id;
-      const div = document.createElement("div");
-      div.style.border = "1px solid #ddd"; div.style.padding = "8px"; div.style.margin = "8px 0"; div.style.borderRadius = "8px";
-      div.innerHTML = `
-        <strong>${data.title}</strong><br>
-        ₹${data.price} • ${data.category}<br>
-        <img src="${data.imageURL}" style="width:150px;height:90px;object-fit:cover;border-radius:6px;margin-top:6px"><br>
-        <button class="editBtn">Edit</button> <button class="deleteBtn">Delete</button>
-      `;
-      div.querySelector(".editBtn").onclick = async () => {
-        const newTitle = prompt("Title", data.title);
-        const newPrice = prompt("Price", data.price);
-        const newCategory = prompt("Category", data.category);
-        if(newTitle && newPrice && newCategory){
-          await updateDoc(doc(db, "listings", id), { title:newTitle, price:parseFloat(newPrice), category:newCategory });
-          alert("Updated"); loadListingsForOwner(ownerId); loadAllListings();
-        }
-      };
-      div.querySelector(".deleteBtn").onclick = async () => {
-        if(confirm("Delete this listing?")){
-          await deleteDoc(doc(db, "listings", id));
-          alert("Deleted"); loadListingsForOwner(ownerId); loadAllListings();
-        }
-      };
-      container.appendChild(div);
-    });
-  } catch(e){ console.error(e); }
-}
-
-/* --------- Homepage: load all listings --------- */
-async function loadAllListings(filter=""){
-  productContainer.innerHTML = "";
-  try {
-    const snap = await getDocs(collection(db, "listings"));
-    snap.forEach(docSnap => {
-      const data = docSnap.data(); const id = docSnap.id;
-      if(filter && !data.title.toLowerCase().includes(filter.toLowerCase()) && !data.category.toLowerCase().includes(filter.toLowerCase())) return;
-      const card = document.createElement("div");
-      card.className = "listing-card";
-      card.innerHTML = `
-        <img src="${data.imageURL}" class="listing-img"><br>
-        <strong>${data.title}</strong><br>
-        ₹${data.price} • ${data.category}<br><br>
-        <button class="buyBtn">Buy</button> <button class="waBtn">WhatsApp</button>
-      `;
-      card.querySelector(".buyBtn").onclick = () => addToCart(id, data.title, data.price);
-      card.querySelector(".waBtn").onclick = () => {
-        const msg = `Hi, I'm interested in: ${data.title}`;
-        window.open(`https://wa.me/918882529632?text=${encodeURIComponent(msg)}`, '_blank');
-      };
-      productContainer.appendChild(card);
-    });
-    updateCartUI();
-  } catch(e){ console.error(e); }
-}
-loadAllListings();
-
-/* Search */
-document.getElementById("searchBtn").addEventListener("click", ()=> {
-  const q = document.getElementById("searchBar").value.trim();
-  loadAllListings(q);
-});
-
-/* --------- Cart logic --------- */
-function addToCart(listingId, title, price){
-  cart.push({ listingId, title, price });
-  updateCartUI();
-  alert(title + " added to cart");
-}
-function updateCartUI(){
-  cartItemsEl.innerHTML = "";
-  let total = 0;
-  cart.forEach((item, idx) => {
-    const li = document.createElement("li");
-    li.textContent = `${item.title} - ₹${item.price}`;
-    const rem = document.createElement("button");
-    rem.textContent = "Remove"; rem.style.marginLeft = "8px";
-    rem.onclick = () => { cart.splice(idx,1); updateCartUI(); };
-    li.appendChild(rem);
-    cartItemsEl.appendChild(li);
-    total += Number(item.price);
+addBtn.onclick = async ()=>{
+  const listingRef = push(ref(db,"listings"));
+  await set(listingRef,{
+    title:titleInput.value,
+    price:priceInput.value,
+    category:categoryInput.value,
+    seller:auth.currentUser.uid
   });
-  cartTotalEl.textContent = total;
+};
+
+function loadAllListings(filter=""){
+  onValue(ref(db,"listings"),snap=>{
+    productContainer.innerHTML="";
+    snap.forEach(c=>{
+      const d=c.val();
+      if(filter && !d.title.toLowerCase().includes(filter.toLowerCase())) return;
+      const div=document.createElement("div");
+      div.className="card";
+      div.innerHTML=`<b>${d.title}</b><br>₹${d.price}<br>${d.category}`;
+      productContainer.appendChild(div);
+    });
+  });
 }
-document.getElementById("openCart").addEventListener("click", ()=> { updateCartUI(); cartDiv.style.display = "block"; });
-document.getElementById("closeCart").addEventListener("click", ()=> { cartDiv.style.display = "none"; });
 
-/* --------- Razorpay Checkout (client-only demo) --------- */
-document.getElementById("checkoutBtn").addEventListener("click", ()=> {
-  if(cart.length === 0) return alert("Cart empty!");
-  const amountINPaisa = cart.reduce((s,i)=>s + Number(i.price),0) * 100;
-  const options = {
-    key: "YOUR_RAZORPAY_KEY_HERE", // <- replace with your Razorpay key
-    amount: amountINPaisa,
-    currency: "INR",
-    name: "Student Art Hub",
-    description: "Purchase from Student Art Hub",
-    handler: function (response){
-      alert("Payment successful! ID: " + response.razorpay_payment_id);
-      // optionally create an "orders" document:
-      // addDoc(collection(db, "orders"), { userId: auth.currentUser.uid, cart, amount: amountINPaisa/100, paymentId: response.razorpay_payment_id, createdAt: serverTimestamp() });
-      cart = []; updateCartUI(); cartDiv.style.display = "none";
-    },
-    theme: { color: "#3399cc" }
-  };
-  const rzp = new Razorpay(options);
-  rzp.open();
-});
+function loadMyListings(uid){
+  onValue(ref(db,"listings"),snap=>{
+    myListings.innerHTML="";
+    snap.forEach(c=>{
+      const d=c.val();
+      if(d.seller===uid){
+        const div=document.createElement("div");
+        div.innerHTML=`${d.title} - ₹${d.price}
+        <button onclick="deleteItem('${c.key}')">Delete</button>`;
+        myListings.appendChild(div);
+      }
+    });
+  });
+}
 
-/* --------- Contact form small behavior --------- */
-document.getElementById("contactFormElement").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const name = document.getElementById("contactName").value;
-  const email = document.getElementById("contactEmail").value;
-  const type = document.getElementById("donationType").value;
-  const msg = document.getElementById("contactMessage").value;
-  window.open(`https://wa.me/918882529632?text=${encodeURIComponent(`Donate: ${type}\nName: ${name}\nEmail: ${email}\nMessage: ${msg}`)}`, '_blank');
-  document.getElementById("contactStatus").textContent = "Opening WhatsApp...";
-});
+window.deleteItem=(id)=>{
+  remove(ref(db,"listings/"+id));
+};
 
-/* ====== END ====== */
+searchBtn.onclick=()=>{
+  loadAllListings(searchBar.value);
+};
+
+donateBtn.onclick=()=>{
+  const msg=`Donation\nName:${donateName.value}\nType:${donateType.value}\nMessage:${donateMsg.value}`;
+  window.open(`https://wa.me/918882529632?text=${encodeURIComponent(msg)}`,"_blank");
+};
+
+loadAllListings();
 </script>
+
 </body>
 </html>
