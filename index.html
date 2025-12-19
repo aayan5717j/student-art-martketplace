@@ -59,6 +59,7 @@ footer{background:#111;color:#fff;text-align:center;padding:15px;margin-top:40px
   <br>
   <button id="signupBtn">Sign Up</button>
   <button id="loginBtn">Login</button>
+  <button id="forgotBtn">Forgot Password?</button> <!-- Naya button add kiya -->
   <p id="authMsg"></p>
 </section>
 
@@ -111,7 +112,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  sendPasswordResetEmail  // Naya import add kiya
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import {
   getDatabase,
@@ -174,6 +176,20 @@ loginBtn.onclick = async ()=>{
   try {
     await signInWithEmailAndPassword(auth, email.value, password.value);
     authMsg.textContent = "Login successful!";
+  } catch (error) {
+    authMsg.textContent = "Error: " + error.message;
+  }
+};
+
+// Forgot Password button ka function
+forgotBtn.onclick = async ()=>{
+  if (!email.value) {
+    authMsg.textContent = "Email daalo pehle!";
+    return;
+  }
+  try {
+    await sendPasswordResetEmail(auth, email.value);
+    authMsg.textContent = "Password reset email bheja gaya! Apne inbox check karo.";
   } catch (error) {
     authMsg.textContent = "Error: " + error.message;
   }
