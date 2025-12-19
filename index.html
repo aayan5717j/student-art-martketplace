@@ -18,6 +18,7 @@ button{cursor:pointer;background:#1e3a8a;color:#fff;border:none;border-radius:5p
 .grid{display:flex;gap:15px;flex-wrap:wrap}
 .card{background:#fff;padding:15px;border-radius:10px;width:220px}
 footer{background:#111;color:#fff;text-align:center;padding:15px;margin-top:40px}
+@media (max-width: 600px) { .grid { flex-direction: column; } .card { width: 100%; } } /* Mobile responsive */
 </style>
 </head>
 
@@ -26,12 +27,12 @@ footer{background:#111;color:#fff;text-align:center;padding:15px;margin-top:40px
 <header>
   <h2>Student Art Hub</h2>
   <nav>
-          <a href="index.html">Home</a>
-      <a href="art.html">Art Showcase</a>
-      <a href="books.html">Book Exchange</a>
-      <a href="sketches.html">Custom Sketches</a>
-      <a href="notes.html">Handwritten Notes</a>
-      <a href="donations.html">Donations</a>
+    <a href="index.html">Home</a>
+    <a href="art.html">Art Showcase</a>
+    <a href="books.html">Book Exchange</a>
+    <a href="sketches.html">Custom Sketches</a>
+    <a href="notes.html">Handwritten Notes</a>
+    <a href="donations.html">Donations</a>
   </nav>
 </header>
 
@@ -53,7 +54,9 @@ footer{background:#111;color:#fff;text-align:center;padding:15px;margin-top:40px
   <select id="role">
     <option value="buyer">Buyer</option>
     <option value="seller">Seller</option>
-  </select><br>
+  </select>
+  <input id="whatsapp" type="tel" placeholder="WhatsApp Number (e.g., 918882529632)" style="display:none;"> <!-- Seller ke liye dikhayenge -->
+  <br>
   <button id="signupBtn">Sign Up</button>
   <button id="loginBtn">Login</button>
   <p id="authMsg"></p>
@@ -117,7 +120,8 @@ import {
   push,
   onValue,
   remove,
-  update
+  update,
+  get
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -130,28 +134,68 @@ const firebaseConfig = {
   appId: "1:1097170910592:web:8590c10f6d0662d6881565"
 };
 
+// IMPORTANT: Firebase Console mein jaake Realtime Database Rules set karo taaki sirf authenticated users write kar sake. Example rule: { "rules": { ".read": true, ".write": "auth != null" } }
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+// Role change hone pe WhatsApp field show/hide karo
+role.onchange = () => {
+  whatsapp.style.display = (role.value === "seller") ? "block" : "none";
+};
+
 signupBtn.onclick = async ()=>{
-  await createUserWithEmailAndPassword(auth,email.value,password.value);
-  authMsg.textContent="Signup successful";
+  if (!email.value || !password.value) {
+    authMsg.textContent = "Email aur password daalo!";
+    return;
+  }
+  if (role.value === "seller" && !whatsapp.value) {
+    authMsg.textContent = "Seller ke liye WhatsApp number daalo!";
+    return;
+  }
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    await set(ref(db, 'users/' + userCredential.user.uid), { 
+      role: role.value, 
+      whatsapp: whatsapp.value || null // Buyer ke liye null
+    });
+    authMsg.textContent = "Signup successful!";
+  } catch (error) {
+    authMsg.textContent = "Error: " + error.message;
+  }
 };
 
 loginBtn.onclick = async ()=>{
-  await signInWithEmailAndPassword(auth,email.value,password.value);
+  if (!email.value || !password.value) {
+    authMsg.textContent = "Email aur password daalo!";
+    return;
+  }
+  try {
+    await signInWithEmailAndPassword(auth, email.value, password.value);
+    authMsg.textContent = "Login successful!";
+  } catch (error) {
+    authMsg.textContent = "Error: " + error.message;
+  }
 };
 
 logoutBtn.onclick = ()=>signOut(auth);
 
-onAuthStateChanged(auth,user=>{
+onAuthStateChanged(auth, async (user)=>{
   if(user){
     authSection.style.display="none";
     dashboard.style.display="block";
     userInfo.textContent="Logged in as "+user.email;
 
-    if(role.value==="seller") sellerPanel.style.display="block";
+    // Role fetch karo database se
+    const userRef = ref(db, 'users/' + user.uid);
+    onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data && data.role === "seller") {
+        sellerPanel.style.display="block";
+      }
+    });
+
     loadAllListings();
     loadMyListings(user.uid);
   }else{
@@ -161,13 +205,23 @@ onAuthStateChanged(auth,user=>{
 });
 
 addBtn.onclick = async ()=>{
-  const listingRef = push(ref(db,"listings"));
-  await set(listingRef,{
-    title:titleInput.value,
-    price:priceInput.value,
-    category:categoryInput.value,
-    seller:auth.currentUser.uid
-  });
+  if (!titleInput.value || !priceInput.value || !categoryInput.value) {
+    authMsg.textContent = "Saare fields fill karo!";
+    return;
+  }
+  try {
+    const listingRef = push(ref(db,"listings"));
+    await set(listingRef,{
+      title:titleInput.value,
+      price:priceInput.value,
+      category:categoryInput.value,
+      seller:auth.currentUser.uid
+    });
+    authMsg.textContent = "Listing added!";
+    titleInput.value = ""; priceInput.value = ""; categoryInput.value = ""; // Clear fields
+  } catch (error) {
+    authMsg.textContent = "Error adding listing: " + error.message;
+  }
 };
 
 function loadAllListings(filter=""){
@@ -179,6 +233,13 @@ function loadAllListings(filter=""){
       const div=document.createElement("div");
       div.className="card";
       div.innerHTML=`<b>${d.title}</b><br>₹${d.price}<br>${d.category}`;
+      // Buy button add kiya - logged-in users click kar sakte hain
+      if (auth.currentUser) {
+        const buyBtn = document.createElement("button");
+        buyBtn.textContent = "Buy";
+        buyBtn.onclick = () => buyItem(d.title, d.price, d.seller);
+        div.appendChild(buyBtn);
+      }
       productContainer.appendChild(div);
     });
   });
@@ -191,23 +252,43 @@ function loadMyListings(uid){
       const d=c.val();
       if(d.seller===uid){
         const div=document.createElement("div");
-        div.innerHTML=`${d.title} - ₹${d.price}
-        <button onclick="deleteItem('${c.key}')">Delete</button>`;
+        div.innerHTML=`${d.title} - ₹${d.price}`;
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.onclick = () => deleteItem(c.key);
+        div.appendChild(deleteBtn);
         myListings.appendChild(div);
       }
     });
   });
 }
 
-window.deleteItem=(id)=>{
+function deleteItem(id){
   remove(ref(db,"listings/"+id));
-};
+}
+
+async function buyItem(title, price, sellerUid) {
+  // Seller ka WhatsApp number fetch karo database se
+  const sellerRef = ref(db, 'users/' + sellerUid);
+  const snapshot = await get(sellerRef);
+  const sellerData = snapshot.val();
+  if (sellerData && sellerData.whatsapp) {
+    const msg = `Hi, I want to buy: ${title} for ₹${price}. Can we discuss?`;
+    window.open(`https://wa.me/${sellerData.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
+  } else {
+    alert("Seller ka WhatsApp number nahi mila. Contact admin!");
+  }
+}
 
 searchBtn.onclick=()=>{
   loadAllListings(searchBar.value);
 };
 
 donateBtn.onclick=()=>{
+  if (!donateName.value) {
+    alert("Name daalo!");
+    return;
+  }
   const msg=`Donation\nName:${donateName.value}\nType:${donateType.value}\nMessage:${donateMsg.value}`;
   window.open(`https://wa.me/918882529632?text=${encodeURIComponent(msg)}`,"_blank");
 };
