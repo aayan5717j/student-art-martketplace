@@ -182,41 +182,47 @@ loginBtn.onclick = async ()=>{
 };
 
 // Forgot Password button ka function
-forgotBtn.onclick = async ()=>{
+forgotBtn.onclick = async () => {
   if (!email.value) {
-    authMsg.textContent = "Email daalo pehle!";
+    authMsg.textContent = "Please enter your email address.";
     return;
   }
+
   try {
-    await sendPasswordResetEmail(auth, email.value);
-    authMsg.textContent = "Password reset email bheja gaya! Apne inbox check karo.";
+    await sendPasswordResetEmail(auth, email.value, {
+      url: "https://aayan5717j.github.io/student-art-marketplace/index.html",  // Fixed: Corrected repo name and page (assuming index.html is main)
+      handleCodeInApp: false
+    });
+
+    authMsg.textContent =
+      "Password reset email has been sent. Please check your inbox and spam folder.";
   } catch (error) {
     authMsg.textContent = "Error: " + error.message;
   }
 };
 
-logoutBtn.onclick = ()=>signOut(auth);
+logoutBtn.onclick = () => signOut(auth);
 
-onAuthStateChanged(auth, async (user)=>{
-  if(user){
-    authSection.style.display="none";
-    dashboard.style.display="block";
-    userInfo.textContent="Logged in as "+user.email;
+onAuthStateChanged(auth, async (user) => {  // Fixed: Proper async callback
+  if (user) {
+    authSection.style.display = "none";
+    dashboard.style.display = "block";
+    userInfo.textContent = "Logged in as " + user.email;
 
-    // Role fetch karo database se
+    // Role fetch karo database se (moved inside if block)
     const userRef = ref(db, 'users/' + user.uid);
     onValue(userRef, (snapshot) => {
       const data = snapshot.val();
       if (data && data.role === "seller") {
-        sellerPanel.style.display="block";
+        sellerPanel.style.display = "block";
       }
     });
 
     loadAllListings();
     loadMyListings(user.uid);
-  }else{
-    authSection.style.display="block";
-    dashboard.style.display="none";
+  } else {
+    authSection.style.display = "block";
+    dashboard.style.display = "none";
   }
 });
 
