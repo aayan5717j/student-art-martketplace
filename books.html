@@ -91,7 +91,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -104,57 +104,87 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
+const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
 let books = [];
-let sellerData = {uid:"", phone:""};
+let sellerData = { uid: "", phone: "" };
 
-const uploadSection = document.getElementById('uploadSection');
-const bookListings = document.getElementById('bookListings');
+const uploadSection = document.getElementById("uploadSection");
+const bookListings = document.getElementById("bookListings");
 
-// Show upload section only for logged in users
-onAuthStateChanged(auth, user=>{
-  if(user){
+// 🔹 Auth check
+onAuthStateChanged(auth, user => {
+  if (user) {
     sellerData.uid = user.uid;
     sellerData.phone = user.phoneNumber || "";
     uploadSection.style.display = "block";
+  } else {
+    uploadSection.style.display = "none";
+    alert("Please log in first to upload!");
   }
 });
 
-// Upload book
-document.getElementById('uploadBtn').addEventListener('click', async()=>{
-  const name = document.getElementById('bookName').value;
-  const desc = document.getElementById('bookDesc').value;
-  const price = parseInt(document.getElementById('bookPrice').value);
-  const cls = document.getElementById('bookClass').value;
-  const file = document.getElementById('bookImage').files[0];
-
-  if(!name || !price || !cls || !file){ alert("Fill all fields and select image"); return; }
-
-  // Upload image to Firebase Storage
-  const fileName = Date.now() + "-" + file.name;
-  const storageRef = ref(storage,"books/"+fileName);
-  await uploadBytes(storageRef, file);
-  const imageUrl = await getDownloadURL(storageRef);
-
-  const book = {name, desc, price, class:cls, sellerUid: sellerData.uid, sellerPhone: sellerData.phone, imageUrl};
-  books.push(book);
+// 🔹 LOAD BOOKS FROM FIRESTORE
+async function loadBooks() {
+  books = [];
+  const snapshot = await getDocs(collection(db, "books"));
+  snapshot.forEach(doc => {
+    books.push({ id: doc.id, ...doc.data() });  // ID add kiya for delete
+  });
   renderBooks(books);
+}
+loadBooks();
 
-  // Save to Firestore
-  await addDoc(collection(db,"books"), book);
+// 🔹 UPLOAD BOOK
+document.getElementById("uploadBtn").addEventListener("click", async () => {
+  try {
+    const name = bookName.value.trim();
+    const desc = bookDesc.value.trim();
+    const price = Number(bookPrice.value);
+    const cls = bookClass.value;
+    const file = bookImage.files[0];
 
-  alert("Book uploaded successfully!");
+    if (!name || !price || !cls || !file) {
+      alert("All fields required");
+      return;
+    }
+
+    const storageRef = ref(storage, `books/${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    const imageUrl = await getDownloadURL(storageRef);
+
+    const book = {
+      name,
+      desc,
+      price,
+      class: cls,
+      imageUrl,
+      sellerUid: sellerData.uid,
+      sellerPhone: sellerData.phone,  // Phone add kiya
+      createdAt: Date.now()
+    };
+
+    await addDoc(collection(db, "books"), book);
+    books.push(book);
+    renderBooks(books);
+
+    alert("✅ Book uploaded successfully");
+  } catch (err) {
+    console.error(err);
+    alert("❌ Upload failed");
+  }
 });
 
-// Render books
-function renderBooks(list){
-  bookListings.innerHTML="";
-  list.forEach((book,i)=>{
-    const div = document.createElement('article');
-    div.className='item';
+// 🔹 RENDER BOOKS
+function renderBooks(list) {
+  bookListings.innerHTML = "";
+  list.forEach((book, i) => {
+    const isOwner = auth.currentUser && auth.currentUser.uid === book.sellerUid;
+    const deleteBtn = isOwner ? `<button onclick="deleteBook('${book.id}')">Delete</button>` : "";
+    const div = document.createElement("article");
+    div.className = "item";
     div.innerHTML = `
       <img src="${book.imageUrl}" width="150" style="border-radius:10px;"><br>
       <h3>${book.name}</h3>
@@ -162,38 +192,55 @@ function renderBooks(list){
       <p>Class: ${book.class}</p>
       <p class="price">₹${book.price}</p>
       <button onclick="buyBook(${i})">Buy</button>
+      ${deleteBtn}
     `;
     bookListings.appendChild(div);
   });
 }
 
-// Buy book
-window.buyBook = function(i){
+// 🔹 BUY BOOK (Version 1 se add)
+window.buyBook = function (i) {
   const book = books[i];
-  let buyerNumber = prompt("Enter your WhatsApp number (with country code e.g. +91xxxx):");
-  if(!buyerNumber){ alert("Number required"); return; }
+  const buyerNumber = prompt("Enter WhatsApp number with country code");
+  if (!buyerNumber) return;
 
-  // WhatsApp message to seller
-  const msg = `Hi! I want to buy your book:\nTitle: ${book.name}\nPrice: ₹${book.price}\nBuyer's number: ${buyerNumber}`;
-  const waUrl = `https://wa.me/${book.sellerPhone.replace('+','')}?text=${encodeURIComponent(msg)}`;
-  window.open(waUrl,'_blank');
+  const msg = `Hi, I want to buy your book:
+Title: ${book.name}
+Price: ₹${book.price}
+Buyer: ${buyerNumber}`;
 
-  alert("WhatsApp message opened to seller!");
-}
+  const waUrl = `https://wa.me/${book.sellerPhone.replace("+", "")}?text=${encodeURIComponent(msg)}`;
+  window.open(waUrl, "_blank");
+};
 
-// Search + filter
-document.getElementById('searchInput').addEventListener('input',filterBooks);
-document.getElementById('classFilter').addEventListener('change',filterBooks);
+// 🔹 DELETE BOOK (Version 2 se)
+window.deleteBook = async function (id) {
+  if (confirm("Delete this book?")) {
+    try {
+      await deleteDoc(doc(db, "books", id));
+      loadBooks();  // Reload to update list
+      alert("Book deleted!");
+    } catch (err) {
+      alert("Delete failed");
+    }
+  }
+};
 
-function filterBooks(){
-  const query = document.getElementById('searchInput').value.toLowerCase();
-  const cls = document.getElementById('classFilter').value;
-  renderBooks(books.filter(book=>{
-    const matchesSearch = book.name.toLowerCase().includes(query)||book.desc.toLowerCase().includes(query);
-    const matchesClass = cls? book.class===cls : true;
-    return matchesSearch && matchesClass;
-  }));
+// 🔹 SEARCH + FILTER
+searchInput.addEventListener("input", filterBooks);
+classFilter.addEventListener("change", filterBooks);
+
+function filterBooks() {
+  const q = searchInput.value.toLowerCase();
+  const cls = classFilter.value;
+  renderBooks(
+    books.filter(b =>
+      (b.name.toLowerCase().includes(q) || b.desc.toLowerCase().includes(q)) &&
+      (cls ? b.class === cls : true)
+    )
+  );
 }
 </script>
+
 </body>
 </html>
