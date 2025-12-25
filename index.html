@@ -9,16 +9,35 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#f2f2f2}
-header{background:#1e3a8a;color:#fff;padding:15px}
+header{background:#1e3a8a;color:#fff;padding:15px;display:flex;justify-content:space-between;align-items:center}
 nav a{color:#fff;margin:0 10px;text-decoration:none;font-weight:bold}
 .container{padding:20px}
 .hero{background:#fff;padding:30px;border-radius:10px}
 input,select,button,textarea{padding:8px;margin:5px;width:100%;max-width:320px}
 button{cursor:pointer;background:#1e3a8a;color:#fff;border:none;border-radius:5px}
 .grid{display:flex;gap:15px;flex-wrap:wrap}
-.card{background:#fff;padding:15px;border-radius:10px;width:220px}
+.card{background:#fff;padding:15px;border-radius:10px;width:220px;text-align:center}
+.card img{max-width:100%;height:150px;object-fit:cover;border-radius:5px;margin-bottom:10px}
 footer{background:#111;color:#fff;text-align:center;padding:15px;margin-top:40px}
-@media (max-width: 600px) { .grid { flex-direction: column; } .card { width: 100%; } } /* Mobile responsive */
+.loading{display:none;color:#666}
+.tab{display:flex;margin-bottom:10px}
+.tab button{background:#ddd;border:none;padding:10px;flex:1;cursor:pointer}
+.tab button.active{background:#1e3a8a;color:#fff}
+.strength{color:red;margin-top:5px}
+.strength.strong{color:green}
+.user-menu{position:relative;display:none}
+.menu-btn{font-size:24px;background:none;border:none;color:#fff;cursor:pointer}
+.dropdown{position:absolute;top:40px;right:0;background:#fff;border:1px solid #ccc;border-radius:5px;padding:10px;display:none;z-index:10}
+.dropdown button{background:#f2f2f2;color:#000;border:1px solid #ccc;margin:5px 0;width:100%}
+.dashboard{background:#fff;padding:20px;border-radius:10px;margin-bottom:20px}
+.stats{display:flex;gap:20px;flex-wrap:wrap}
+.stat{background:#e0f7fa;padding:15px;border-radius:5px;width:150px;text-align:center}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+.actions button{background:#4caf50;padding:10px 15px}
+.recent{background:#fff;padding:15px;border-radius:5px;margin-top:20px}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:20;justify-content:center;align-items:center}
+.modal-content{background:#fff;padding:20px;border-radius:10px;width:300px;text-align:center}
+@media (max-width: 600px) { .grid { flex-direction: column; } .card { width: 100%; } header { flex-direction: column; align-items: flex-start; } .stats { flex-direction: column; } .actions { flex-direction: column; } }
 </style>
 </head>
 
@@ -34,6 +53,12 @@ footer{background:#111;color:#fff;text-align:center;padding:15px;margin-top:40px
     <a href="notes.html">Handwritten Notes</a>
     <a href="donations.html">Donations</a>
   </nav>
+  <div id="userMenu" class="user-menu">
+    <button id="menuBtn" class="menu-btn">⋮</button>
+    <div id="dropdown" class="dropdown">
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </div>
 </header>
 
 <div class="container">
@@ -49,34 +74,97 @@ footer{background:#111;color:#fff;text-align:center;padding:15px;margin-top:40px
 <!-- AUTH -->
 <section id="authSection">
   <h3>Login / Signup</h3>
-  <input id="email" type="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <select id="role">
-    <option value="buyer">Buyer</option>
-    <option value="seller">Seller</option>
-  </select>
-  <input id="whatsapp" type="tel" placeholder="WhatsApp Number (e.g., 918882529632)" style="display:none;"> <!-- Seller ke liye dikhayenge -->
-  <br>
-  <button id="signupBtn">Sign Up</button>
-  <button id="loginBtn">Login</button>
-  <button id="forgotBtn">Forgot Password?</button> <!-- Naya button add kiya -->
+  <div class="tab">
+    <button id="emailTab" class="active">Email</button>
+    <button id="phoneTab">Phone OTP</button>
+  </div>
+  
+  <!-- Email Auth -->
+  <div id="emailAuth">
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <div id="passwordStrength" class="strength"></div>
+    <select id="role">
+      <option value="buyer">Buyer</option>
+      <option value="seller">Seller</option>
+    </select>
+    <input id="whatsapp" type="tel" placeholder="WhatsApp Number (e.g., +919878455467)" style="display:none;">
+    <label><input id="rememberMe" type="checkbox"> Remember Me</label>
+    <br>
+    <button id="signupBtn">Sign Up</button>
+    <button id="loginBtn">Login</button>
+    <button id="forgotBtn">Forgot Password?</button>
+  </div>
+  
+  <!-- Phone Auth -->
+  <div id="phoneAuth" style="display:none">
+    <input id="phoneNumber" type="tel" placeholder="Phone Number (e.g., +919878455467)">
+    <button id="sendOtpBtn">Send OTP</button>
+    <input id="otpInput" type="text" placeholder="Enter OTP" style="display:none;">
+    <button id="verifyOtpBtn" style="display:none;">Verify OTP</button>
+    <select id="rolePhone">
+      <option value="buyer">Buyer</option>
+      <option value="seller">Seller</option>
+    </select>
+    <input id="whatsappPhone" type="tel" placeholder="WhatsApp Number (e.g., +919878455467)" style="display:none;">
+  </div>
+  
   <p id="authMsg"></p>
+  <div id="loadingAuth" class="loading">Loading...</div>
 </section>
 
-<!-- DASHBOARD -->
-<section id="dashboard" style="display:none">
-  <h3>User Dashboard</h3>
-  <p id="userInfo"></p>
-  <button id="logoutBtn">Logout</button>
+<!-- NAME MODAL -->
+<div id="nameModal" class="modal">
+  <div class="modal-content">
+    <h3>Welcome! Please enter your name to continue.</h3>
+    <input id="userNameInput" type="text" placeholder="Your Name">
+    <button id="submitNameBtn">Continue</button>
+    <p id="nameMsg"></p>
+  </div>
+</div>
 
-  <div id="sellerPanel" style="display:none">
-    <h4>Add Listing</h4>
+<!-- DASHBOARD -->
+<section id="dashboard" style="display:none" class="dashboard">
+  <h3>Welcome to Your Dashboard!</h3>
+  <p id="userInfo">Loading...</p>
+  
+  <div class="stats">
+    <div class="stat">
+      <h4>Total Listings</h4>
+      <p id="totalListings">0</p>
+    </div>
+    <div class="stat">
+      <h4>My Listings</h4>
+      <p id="myListingsCount">0</p>
+    </div>
+    <div class="stat">
+      <h4>Donations Made</h4>
+      <p id="donationsCount">0</p>
+    </div>
+  </div>
+  
+  <div class="actions">
+    <button id="addListingBtn">Add New Listing</button>
+    <button id="browseBtn">Browse All Listings</button>
+    <button id="profileBtn">My Profile</button>
+    <button id="donateBtnDash">Make a Donation</button>
+  </div>
+  
+  <div class="recent">
+    <h4>Recent Activity</h4>
+    <div id="recentActivity">No recent activity.</div>
+  </div>
+  
+  <div id="sellerPanel" style="display:none;margin-top:20px">
+    <h4>Seller Panel</h4>
     <input id="titleInput" placeholder="Title">
     <input id="priceInput" placeholder="Price">
     <input id="categoryInput" placeholder="Category">
-    <button id="addBtn">Upload</button>
-
-    <h4>Your Listings</h4>
+    <input id="imageInput" type="file" accept="image/*">
+    <button id="addBtn">Upload Listing</button>
+    <p id="uploadMsg"></p>
+    <div id="loadingUpload" class="loading">Uploading...</div>
+    <h5>Your Listings</h5>
     <div id="myListings"></div>
   </div>
 </section>
@@ -113,7 +201,10 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  sendPasswordResetEmail  // Naya import add kiya
+  sendPasswordResetEmail,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+  sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import {
   getDatabase,
@@ -125,6 +216,12 @@ import {
   update,
   get
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
@@ -136,187 +233,375 @@ const firebaseConfig = {
   appId: "1:1097170910592:web:8590c10f6d0662d6881565"
 };
 
-// IMPORTANT: Firebase Console mein jaake Realtime Database Rules set karo taaki sirf authenticated users write kar sake. Example rule: { "rules": { ".read": true, ".write": "auth != null" } }
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+const storage = getStorage(app);
 
-// Role change hone pe WhatsApp field show/hide karo
+// Menu toggle
+menuBtn.onclick = () => {
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+};
+
+// Tab switching
+emailTab.onclick = () => {
+  emailTab.classList.add('active');
+  phoneTab.classList.remove('active');
+  emailAuth.style.display = 'block';
+  phoneAuth.style.display = 'none';
+};
+phoneTab.onclick = () => {
+  phoneTab.classList.add('active');
+  emailTab.classList.remove('active');
+  phoneAuth.style.display = 'block';
+  emailAuth.style.display = 'none';
+};
+
+// Password strength checker
+password.oninput = () => {
+  const strength = password.value.length < 6 ? 'Weak' : password.value.length < 10 ? 'Medium' : 'Strong';
+  passwordStrength.textContent = 'Password Strength: ' + strength;
+  passwordStrength.className = strength === 'Strong' ? 'strength strong' : 'strength';
+};
+
+// Role change for email
 role.onchange = () => {
   whatsapp.style.display = (role.value === "seller") ? "block" : "none";
 };
 
+// Role change for phone
+rolePhone.onchange = () => {
+  whatsappPhone.style.display = (rolePhone.value === "seller") ? "block" : "none";
+};
+
+// Email Signup
 signupBtn.onclick = async ()=>{
+  loadingAuth.style.display = "block";
   if (!email.value || !password.value) {
     authMsg.textContent = "Email aur password daalo!";
+    loadingAuth.style.display = "none";
     return;
   }
   if (role.value === "seller" && !whatsapp.value) {
     authMsg.textContent = "Seller ke liye WhatsApp number daalo!";
+    loadingAuth.style.display = "none";
     return;
   }
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    await sendEmailVerification(userCredential.user);
     await set(ref(db, 'users/' + userCredential.user.uid), { 
       role: role.value, 
-      whatsapp: whatsapp.value || null // Buyer ke liye null
+      whatsapp: whatsapp.value || null,
+      authType: 'email',
+      name: null // Name will be added later
     });
-    authMsg.textContent = "Signup successful!";
+    authMsg.textContent = "Signup successful! Email verify karo inbox se.";
+    loadingAuth.style.display = "none";
+    showNameModal(userCredential.user.uid); // Show name modal
   } catch (error) {
     authMsg.textContent = "Error: " + error.message;
+    loadingAuth.style.display = "none";
   }
 };
 
+// Email Login
 loginBtn.onclick = async ()=>{
+  loadingAuth.style.display = "block";
   if (!email.value || !password.value) {
     authMsg.textContent = "Email aur password daalo!";
+    loadingAuth.style.display = "none";
     return;
   }
   try {
-    await signInWithEmailAndPassword(auth, email.value, password.value);
+    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+    if (rememberMe.checked) {
+      auth.setPersistence('local'); // Remember me
+    }
     authMsg.textContent = "Login successful!";
+    loadingAuth.style.display = "none";
+    showNameModal(userCredential.user.uid); // Show name modal
   } catch (error) {
     authMsg.textContent = "Error: " + error.message;
+    loadingAuth.style.display = "none";
   }
 };
 
-// Forgot Password button ka function
+// Forgot Password
 forgotBtn.onclick = async () => {
   if (!email.value) {
-    authMsg.textContent = "Please enter your email address.";
+    authMsg.textContent = "Email daalo!";
     return;
   }
-
   try {
     await sendPasswordResetEmail(auth, email.value, {
-      url: "https://aayan5717j.github.io/student-art-marketplace/index.html",  // Fixed: Corrected repo name and page (assuming index.html is main)
+      url: window.location.href,
       handleCodeInApp: false
     });
-
-    authMsg.textContent =
-      "Password reset email has been sent. Please check your inbox and spam folder.";
+    authMsg.textContent = "Password reset email bheja gaya. Inbox check karo!";
   } catch (error) {
     authMsg.textContent = "Error: " + error.message;
   }
 };
 
-logoutBtn.onclick = () => signOut(auth);
-
-onAuthStateChanged(auth, async (user) => {  // Fixed: Proper async callback
-  if (user) {
-    authSection.style.display = "none";
-    dashboard.style.display = "block";
-    userInfo.textContent = "Logged in as " + user.email;
-
-    // Role fetch karo database se (moved inside if block)
-    const userRef = ref(db, 'users/' + user.uid);
-    onValue(userRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data && data.role === "seller") {
-        sellerPanel.style.display = "block";
+// Phone OTP Send
+sendOtpBtn.onclick = async () => {
+  if (!phoneNumber.value) {
+    authMsg.textContent = "Phone number daalo!";
+    return;
+  }
+  try {
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'sendOtpBtn', {
+      size: 'invisible',
+      callback: (response) => {
+        // reCAPTCHA solved
       }
     });
+    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber.value, window.recaptchaVerifier);
+    window.confirmationResult = confirmationResult;
+    otpInput.style.display = 'block';
+    verifyOtpBtn.style.display = 'block';
+    sendOtpBtn.style.display = 'none';
+    authMsg.textContent = "OTP bheja gaya! Enter karo.";
+  } catch (error) {
+    authMsg.textContent = "Error sending OTP: " + error.message;
+  }
+};
 
-    loadAllListings();
-    loadMyListings(user.uid);
+// Phone OTP Verify
+verifyOtpBtn.onclick = async () => {
+  if (!otpInput.value) {
+    authMsg.textContent = "OTP daalo!";
+    return;
+  }
+  try {
+    const result = await window.confirmationResult.confirm(otpInput.value);
+    await set(ref(db, 'users/' + result.user.uid), { 
+      role: rolePhone.value, 
+      whatsapp: whatsappPhone.value || null,
+      authType: 'phone',
+      name: null
+    });
+    authMsg.textContent = "Phone login successful!";
+    showNameModal(result.user.uid); // Show name modal
+  } catch (error) {
+    authMsg.textContent = "Invalid OTP: " + error.message;
+  }
+};
+
+// Show Name Modal
+function showNameModal(uid) {
+  nameModal.style.display = 'flex';
+  submitNameBtn.onclick = async () => {
+    if (!userNameInput.value.trim()) {
+      nameMsg.textContent = "Name daalo!";
+      return;
+    }
+    try {
+      await update(ref(db, 'users/' + uid), { name: userNameInput.value.trim() });
+      nameModal.style.display = 'none';
+      loadDashboard(uid);
+    } catch (error) {
+      nameMsg.textContent = "Error saving name: " + error.message;
+    }
+  };
+}
+
+// Load Dashboard
+function loadDashboard(uid) {
+  get(ref(db, 'users/' + uid)).then((snapshot) => {
+    const user = snapshot.val();
+    userInfo.textContent = `Hello, ${user.name}! Role: ${user.role}`;
+    if (user.role === 'seller') {
+      sellerPanel.style.display = 'block';
+      loadMyListings(uid);
+    }
+    dashboard.style.display = 'block';
+    authSection.style.display = 'none';
+    userMenu.style.display = 'block';
+    loadStats(uid);
+    loadRecentActivity(uid);
+  });
+}
+
+// Load Stats
+function loadStats(uid) {
+  onValue(ref(db, 'listings'), (snapshot) => {
+    const listings = snapshot.val() || {};
+    totalListings.textContent = Object.keys(listings).length;
+    myListingsCount.textContent = Object.values(listings).filter(l => l.sellerId === uid).length;
+  });
+  onValue(ref(db, 'donations'), (snapshot) => {
+    const donations = snapshot.val() || {};
+    donationsCount.textContent = Object.values(donations).filter(d => d.userId === uid).length;
+  });
+}
+
+
+// Load Recent Activity
+function loadRecentActivity(uid) {
+  onValue(ref(db, 'listings'), (snapshot) => {
+    const listings = snapshot.val() || {};
+    const myListings = Object.values(listings).filter(l => l.sellerId === uid);
+    recentActivity.innerHTML = myListings.length > 0 ? myListings.slice(-3).map(l => `<p>${l.title} - ₹${l.price}</p>`).join('') : 'No recent activity.';
+  });
+}
+
+// Load My Listings (for sellers)
+function loadMyListings(uid) {
+  onValue(ref(db, 'listings'), (snapshot) => {
+    const listings = snapshot.val() || {};
+    const myListings = Object.values(listings).filter(l => l.sellerId === uid);
+    myListingsDiv.innerHTML = myListings.map(l => `
+      <div class="card">
+        <img src="${l.imageUrl || 'https://via.placeholder.com/150'}" alt="${l.title}">
+        <h4>${l.title}</h4>
+        <p>₹${l.price}</p>
+        <button onclick="deleteListing('${l.id}')">Delete</button>
+      </div>
+    `).join('');
+  });
+}
+
+// Delete Listing
+window.deleteListing = (id) => {
+  remove(ref(db, 'listings/' + id));
+};
+
+// Add Listing (with image upload)
+addBtn.onclick = async () => {
+  loadingUpload.style.display = "block";
+  if (!titleInput.value || !priceInput.value || !categoryInput.value) {
+    uploadMsg.textContent = "Saare fields fill karo!";
+    loadingUpload.style.display = "none";
+    return;
+  }
+  const uid = auth.currentUser.uid;
+  const file = imageInput.files[0];
+  let imageUrl = null;
+  if (file) {
+    const storageReference = storageRef(storage, 'listings/' + uid + '/' + file.name);
+    await uploadBytes(storageReference, file);
+    imageUrl = await getDownloadURL(storageReference);
+  }
+  const newListingRef = push(ref(db, 'listings'));
+  await set(newListingRef, {
+    id: newListingRef.key,
+    sellerId: uid,
+    title: titleInput.value,
+    price: priceInput.value,
+    category: categoryInput.value,
+    imageUrl: imageUrl,
+    timestamp: Date.now()
+  });
+  uploadMsg.textContent = "Listing added successfully!";
+  loadingUpload.style.display = "none";
+  titleInput.value = '';
+  priceInput.value = '';
+  categoryInput.value = '';
+  imageInput.value = '';
+};
+
+// Logout
+logoutBtn.onclick = async () => {
+  await signOut(auth);
+  dashboard.style.display = 'none';
+  authSection.style.display = 'block';
+  userMenu.style.display = 'none';
+  authMsg.textContent = "Logged out!";
+};
+
+// Auth State Listener
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loadDashboard(user.uid);
   } else {
-    authSection.style.display = "block";
-    dashboard.style.display = "none";
+    dashboard.style.display = 'none';
+    authSection.style.display = 'block';
+    userMenu.style.display = 'none';
   }
 });
 
-addBtn.onclick = async ()=>{
-  if (!titleInput.value || !priceInput.value || !categoryInput.value) {
-    authMsg.textContent = "Saare fields fill karo!";
-    return;
-  }
-  try {
-    const listingRef = push(ref(db,"listings"));
-    await set(listingRef,{
-      title:titleInput.value,
-      price:priceInput.value,
-      category:categoryInput.value,
-      seller:auth.currentUser.uid
-    });
-    authMsg.textContent = "Listing added!";
-    titleInput.value = ""; priceInput.value = ""; categoryInput.value = ""; // Clear fields
-  } catch (error) {
-    authMsg.textContent = "Error adding listing: " + error.message;
-  }
-};
-
-function loadAllListings(filter=""){
-  onValue(ref(db,"listings"),snap=>{
-    productContainer.innerHTML="";
-    snap.forEach(c=>{
-      const d=c.val();
-      if(filter && !d.title.toLowerCase().includes(filter.toLowerCase())) return;
-      const div=document.createElement("div");
-      div.className="card";
-      div.innerHTML=`<b>${d.title}</b><br>₹${d.price}<br>${d.category}`;
-      // Buy button add kiya - logged-in users click kar sakte hain
-      if (auth.currentUser) {
-        const buyBtn = document.createElement("button");
-        buyBtn.textContent = "Buy";
-        buyBtn.onclick = () => buyItem(d.title, d.price, d.seller);
-        div.appendChild(buyBtn);
-      }
-      productContainer.appendChild(div);
-    });
+// Load All Listings
+function loadListings() {
+  onValue(ref(db, 'listings'), (snapshot) => {
+    const listings = snapshot.val() || {};
+    productContainer.innerHTML = Object.values(listings).map(l => `
+      <div class="card">
+        <img src="${l.imageUrl || 'https://via.placeholder.com/150'}" alt="${l.title}">
+        <h4>${l.title}</h4>
+        <p>₹${l.price}</p>
+        <p>Category: ${l.category}</p>
+        <button onclick="contactSeller('${l.sellerId}')">Contact Seller</button>
+      </div>
+    `).join('');
   });
 }
 
-function loadMyListings(uid){
-  onValue(ref(db,"listings"),snap=>{
-    myListings.innerHTML="";
-    snap.forEach(c=>{
-      const d=c.val();
-      if(d.seller===uid){
-        const div=document.createElement("div");
-        div.innerHTML=`${d.title} - ₹${d.price}`;
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Delete";
-        deleteBtn.onclick = () => deleteItem(c.key);
-        div.appendChild(deleteBtn);
-        myListings.appendChild(div);
-      }
-    });
+// Contact Seller (via WhatsApp)
+window.contactSeller = (sellerId) => {
+  get(ref(db, 'users/' + sellerId)).then((snapshot) => {
+    const seller = snapshot.val();
+    if (seller.whatsapp) {
+      window.open(`https://wa.me/${seller.whatsapp}?text=Hi, interested in your listing!`, '_blank');
+    } else {
+      alert('Seller WhatsApp not available.');
+    }
   });
-}
-
-function deleteItem(id){
-  remove(ref(db,"listings/"+id));
-}
-
-async function buyItem(title, price, sellerUid) {
-  // Seller ka WhatsApp number fetch karo database se
-  const sellerRef = ref(db, 'users/' + sellerUid);
-  const snapshot = await get(sellerRef);
-  const sellerData = snapshot.val();
-  if (sellerData && sellerData.whatsapp) {
-    const msg = `Hi, I want to buy: ${title} for ₹${price}. Can we discuss?`;
-    window.open(`https://wa.me/${sellerData.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
-  } else {
-    alert("Seller ka WhatsApp number nahi mila. Contact admin!");
-  }
-}
-
-searchBtn.onclick=()=>{
-  loadAllListings(searchBar.value);
 };
 
-donateBtn.onclick=()=>{
+// Search Listings
+searchBtn.onclick = () => {
+  const query = searchBar.value.toLowerCase();
+  onValue(ref(db, 'listings'), (snapshot) => {
+    const listings = snapshot.val() || {};
+    const filtered = Object.values(listings).filter(l => l.title.toLowerCase().includes(query) || l.category.toLowerCase().includes(query));
+    productContainer.innerHTML = filtered.map(l => `
+      <div class="card">
+        <img src="${l.imageUrl || 'https://via.placeholder.com/150'}" alt="${l.title}">
+        <h4>${l.title}</h4>
+        <p>₹${l.price}</p>
+        <p>Category: ${l.category}</p>
+        <button onclick="contactSeller('${l.sellerId}')">Contact Seller</button>
+      </div>
+    `).join('');
+  });
+};
+
+// Donate via WhatsApp
+donateBtn.onclick = () => {
   if (!donateName.value) {
-    alert("Name daalo!");
+    alert('Name daalo!');
     return;
   }
-  const msg=`Donation\nName:${donateName.value}\nType:${donateType.value}\nMessage:${donateMsg.value}`;
-  window.open(`https://wa.me/918882529632?text=${encodeURIComponent(msg)}`,"_blank");
+  const msg = `Hi, I want to donate: ${donateType.value}. Name: ${donateName.value}. Message: ${donateMsg.value}`;
+  window.open(`https://wa.me/919878455467?text=${encodeURIComponent(msg)}`, '_blank'); // Replace with your WhatsApp number
+  // Save donation to DB
+  const uid = auth.currentUser ? auth.currentUser.uid : null;
+  if (uid) {
+    push(ref(db, 'donations'), {
+      userId: uid,
+      type: donateType.value,
+      message: donateMsg.value,
+      timestamp: Date.now()
+    });
+  }
 };
 
-loadAllListings();
-</script>
+// Dashboard Buttons
+addListingBtn.onclick = () => {
+  sellerPanel.style.display = sellerPanel.style.display === 'none' ? 'block' : 'none';
+};
+browseBtn.onclick = () => {
+  loadListings();
+};
+profileBtn.onclick = () => {
+  alert('Profile page coming soon!');
+};
+donateBtnDash.onclick = () => {
+  window.location.href = '#donate'; // Scroll to donate section
+};
 
-</body>
-</html>
+// Initial Load
+loadListings();
+</script>
