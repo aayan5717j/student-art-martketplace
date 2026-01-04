@@ -1,50 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Student Art Hub: Buy, sell, and exchange student-made art, books, sketches, and notes at affordable prices." />
-  <meta name="keywords" content="student art, marketplace, buy sell art, custom sketches, handwritten notes, book exchange" />
+
+  <meta name="description"
+        content="Student Art Hub: Buy, sell, and exchange student-made art, books, sketches, and notes at affordable prices." />
+
+  <meta name="keywords"
+        content="student art, marketplace, buy sell art, custom sketches, handwritten notes, book exchange" />
+
   <title>Student Art Hub</title>
 
-<style>
-body{margin:0;font-family:Arial;background:#f2f2f2}
-header{background:#1e3a8a;color:#fff;padding:15px;display:flex;justify-content:space-between;align-items:center}
-nav a{color:#fff;margin:0 10px;text-decoration:none;font-weight:bold}
-.container{padding:20px}
-.hero{background:#fff;padding:30px;border-radius:10px}
-input,select,button,textarea{padding:8px;margin:5px;width:100%;max-width:320px}
-button{cursor:pointer;background:#1e3a8a;color:#fff;border:none;border-radius:5px}
-.grid{display:flex;gap:15px;flex-wrap:wrap}
-.card{background:#fff;padding:15px;border-radius:10px;width:220px;text-align:center}
-.card img{max-width:100%;height:150px;object-fit:cover;border-radius:5px;margin-bottom:10px}
-footer{background:#111;color:#fff;text-align:center;padding:15px;margin-top:40px}
-.loading{display:none;color:#666}
-.tab{display:flex;margin-bottom:10px}
-.tab button{background:#ddd;border:none;padding:10px;flex:1;cursor:pointer}
-.tab button.active{background:#1e3a8a;color:#fff}
-.strength{color:red;margin-top:5px}
-.strength.strong{color:green}
-.user-menu{position:relative;display:none}
-.menu-btn{font-size:24px;background:none;border:none;color:#fff;cursor:pointer}
-.dropdown{position:absolute;top:40px;right:0;background:#fff;border:1px solid #ccc;border-radius:5px;padding:10px;display:none;z-index:10}
-.dropdown button{background:#f2f2f2;color:#000;border:1px solid #ccc;margin:5px 0;width:100%}
-.dashboard{background:#fff;padding:20px;border-radius:10px;margin-bottom:20px}
-.stats{display:flex;gap:20px;flex-wrap:wrap}
-.stat{background:#e0f7fa;padding:15px;border-radius:5px;width:150px;text-align:center}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
-.actions button{background:#4caf50;padding:10px 15px}
-.recent{background:#fff;padding:15px;border-radius:5px;margin-top:20px}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:20;justify-content:center;align-items:center}
-.modal-content{background:#fff;padding:20px;border-radius:10px;width:300px;text-align:center}
-@media (max-width: 600px) { .grid { flex-direction: column; } .card { width: 100%; } header { flex-direction: column; align-items: flex-start; } .stats { flex-direction: column; } .actions { flex-direction: column; } }
-</style>
+
+  <!--  BASIC STYLES  -->
+  <style>
+
+      body {
+        margin: 0;
+        font-family: Arial;
+        background: #f2f2f2;
+      }
+
+      header {
+        background: #1e3a8a;
+        color: #fff;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      nav a {
+        color: #fff;
+        margin: 0 10px;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .container {
+        padding: 20px;
+      }
+
+      .hero {
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+      }
+
+      input,
+      select,
+      button,
+      textarea {
+        padding: 8px;
+        margin: 5px;
+        width: 100%;
+        max-width: 350px;
+      }
+
+      button {
+        cursor: pointer;
+        background: #1e3a8a;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+      }
+
+      .grid {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .card {
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        width: 230px;
+        text-align: center;
+      }
+
+      .card img {
+        max-width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+
+      footer {
+        background: #111;
+        color: #fff;
+        text-align: center;
+        padding: 15px;
+        margin-top: 40px;
+      }
+
+      .loading {
+        display: none;
+        color: #666;
+      }
+
+      .tab {
+        display: flex;
+        margin-bottom: 10px;
+      }
+
+      .tab button {
+        background: #ddd;
+        border: none;
+        padding: 10px;
+        flex: 1;
+        cursor: pointer;
+      }
+
+      .tab button.active {
+        background: #1e3a8a;
+        color: #fff;
+      }
+
+      .strength {
+        color: red;
+      }
+
+      .strength.strong {
+        color: green;
+      }
+
+      .user-menu {
+        position: relative;
+        display: none;
+      }
+
+      .menu-btn {
+        font-size: 24px;
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      .dropdown {
+        position: absolute;
+        top: 40px;
+        right: 0;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        display: none;
+        z-index: 10;
+      }
+
+      .dropdown button {
+        background: #f2f2f2;
+        color: #000;
+        border: 1px solid #ccc;
+        margin: 5px 0;
+        width: 100%;
+      }
+
+      .dashboard {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .stats {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .stat {
+        background: #e0f7fa;
+        padding: 15px;
+        border-radius: 5px;
+        width: 150px;
+        text-align: center;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 20px 0;
+      }
+
+      .recent {
+        background: #fff;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 20;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-content {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        width: 300px;
+        text-align: center;
+      }
+
+      @media (max-width: 600px) {
+        .grid { flex-direction: column; }
+        .card { width: 100%; }
+        header { flex-direction: column; align-items: flex-start; }
+      }
+
+  </style>
+
 </head>
 
 <body>
 
+<!-- ================= HEADER ================= -->
 <header>
+
   <h2>Student Art Hub</h2>
+
   <nav>
     <a href="index.html">Home</a>
     <a href="art.html">Art Showcase</a>
@@ -53,555 +243,931 @@ footer{background:#111;color:#fff;text-align:center;padding:15px;margin-top:40px
     <a href="notes.html">Handwritten Notes</a>
     <a href="donations.html">Donations</a>
   </nav>
+
   <div id="userMenu" class="user-menu">
     <button id="menuBtn" class="menu-btn">⋮</button>
+
     <div id="dropdown" class="dropdown">
       <button id="logoutBtn">Logout</button>
     </div>
   </div>
+
 </header>
 
+
+
+<!-- ================= MAIN CONTAINER ================= -->
 <div class="container">
 
-<!-- HERO -->
+
+<!-- ================= HERO ================= -->
 <section class="hero">
   <h2>Buy • Sell • Exchange — Student-made</h2>
   <p>Artworks, books, sketches & handwritten notes</p>
+
   <input id="searchBar" placeholder="Search..." />
   <button id="searchBtn">Search</button>
 </section>
 
-<!-- AUTH -->
+
+
+<!-- ================= AUTH SECTION ================= -->
 <section id="authSection">
+
   <h3>Login / Signup</h3>
+
+  <!-- Tabs -->
   <div class="tab">
     <button id="emailTab" class="active">Email</button>
     <button id="phoneTab">Phone OTP</button>
   </div>
-  
-  <!-- Email Auth -->
+
+
+  <!-- EMAIL AUTH -->
   <div id="emailAuth">
+
     <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
+
     <div id="passwordStrength" class="strength"></div>
+
     <select id="role">
       <option value="buyer">Buyer</option>
       <option value="seller">Seller</option>
     </select>
-    <input id="whatsapp" type="tel" placeholder="WhatsApp Number (e.g., +919878455467)" style="display:none;">
-    <label><input id="rememberMe" type="checkbox"> Remember Me</label>
-    <br>
+
+    <input id="whatsapp"
+           type="tel"
+           placeholder="WhatsApp Number"
+           style="display:none;">
+
+    <label>
+      <input id="rememberMe" type="checkbox"> Remember Me
+    </label>
+
     <button id="signupBtn">Sign Up</button>
     <button id="loginBtn">Login</button>
     <button id="forgotBtn">Forgot Password?</button>
+
   </div>
-  
-  <!-- Phone Auth -->
+
+
+
+  <!-- PHONE AUTH -->
   <div id="phoneAuth" style="display:none">
-    <input id="phoneNumber" type="tel" placeholder="Phone Number (e.g., +919878455467)">
+
+    <input id="phoneNumber" type="tel" placeholder="Phone (e.g., +91...)">
+
     <button id="sendOtpBtn">Send OTP</button>
+
     <input id="otpInput" type="text" placeholder="Enter OTP" style="display:none;">
     <button id="verifyOtpBtn" style="display:none;">Verify OTP</button>
+
     <select id="rolePhone">
       <option value="buyer">Buyer</option>
       <option value="seller">Seller</option>
     </select>
-    <input id="whatsappPhone" type="tel" placeholder="WhatsApp Number (e.g., +919878455467)" style="display:none;">
+
+    <input id="whatsappPhone"
+           type="tel"
+           placeholder="WhatsApp Number"
+           style="display:none;">
   </div>
-  
+
+
   <p id="authMsg"></p>
   <div id="loadingAuth" class="loading">Loading...</div>
+
 </section>
 
-<!-- NAME MODAL -->
+
+
+<!-- ================= NAME MODAL ================= -->
 <div id="nameModal" class="modal">
+
   <div class="modal-content">
-    <h3>Welcome! Please enter your name to continue.</h3>
+
+    <h3>Welcome! Please enter your name.</h3>
+
     <input id="userNameInput" type="text" placeholder="Your Name">
+
     <button id="submitNameBtn">Continue</button>
+
     <p id="nameMsg"></p>
+
   </div>
+
 </div>
 
-<!-- DASHBOARD -->
+
+
+<!-- ================= DASHBOARD ================= -->
 <section id="dashboard" style="display:none" class="dashboard">
+
   <h3>Welcome to Your Dashboard!</h3>
+
   <p id="userInfo">Loading...</p>
-  
+
+
+
+  <!-- STATS -->
   <div class="stats">
+
     <div class="stat">
       <h4>Total Listings</h4>
       <p id="totalListings">0</p>
     </div>
+
     <div class="stat">
       <h4>My Listings</h4>
       <p id="myListingsCount">0</p>
     </div>
+
     <div class="stat">
-      <h4>Donations Made</h4>
+      <h4>Donations</h4>
       <p id="donationsCount">0</p>
     </div>
+
   </div>
-  
+
+
+
+  <!-- ACTION BUTTONS -->
   <div class="actions">
-    <button id="addListingBtn">Add New Listing</button>
-    <button id="browseBtn">Browse All Listings</button>
+    <button id="addListingBtn">Add Listing</button>
+    <button id="browseBtn">Browse</button>
     <button id="profileBtn">My Profile</button>
-    <button id="donateBtnDash">Make a Donation</button>
+    <button id="donateBtnDash">Donate</button>
   </div>
-  
+
+
+
+  <!-- RECENT -->
   <div class="recent">
     <h4>Recent Activity</h4>
     <div id="recentActivity">No recent activity.</div>
   </div>
-  
+
+
+
+  <!-- ========== SELLER PANEL (STARTS HERE) ========== -->
   <div id="sellerPanel" style="display:none;margin-top:20px">
+
     <h4>Seller Panel</h4>
+
+
+    <!-- BASIC LISTING FIELDS -->
+     <select id="categoryInput">
+      <option value="">Choose Category</option>
+      <option value="art">Art</option>
+      <option value="book">Book</option>
+      <option value="sketch">Custom Sketch</option>
+      <option value="notes">Handwritten Notes</option>
+    </select>
     <input id="titleInput" placeholder="Title">
+
     <input id="priceInput" placeholder="Price">
-    <input id="categoryInput" placeholder="Category">
+
+    
+
+
+
+    <!-- CLASS FIELD -->
+    <select id="class">
+<option value="">All Classes</option>
+<option value="1">Class 1</option>
+<option value="2">Class 2</option>
+<option value="3">Class 3</option>
+<option value="4">Class 4</option>
+<option value="5">Class 5</option>
+<option value="6">Class 6</option>
+<option value="7">Class 7</option>
+<option value="8">Class 8</option>
+<option value="9">Class 9</option>
+<option value="10">Class 10</option>
+<option value="11">Class 11</option>
+<option value="12">Class 12</option>
+</select>
+
+    <!-- SUBJECT FIELD (NOTES ONLY) -->
+    <input id="subjectInput"
+           placeholder="Subject (Notes only)"
+           style="display:none;">
+
+
+    <!-- BOARD FIELD (NOTES ONLY) -->
+    <input id="boardInput"
+           placeholder="Board (CBSE / State etc)"
+           style="display:none;">
+
+
+    <!-- IMAGE (book / art / sketch) -->
     <input id="imageInput" type="file" accept="image/*">
+
+
+    <!-- PDF FOR NOTES -->
+    <input id="pdfInput"
+           type="file"
+           accept="application/pdf"
+           style="display:none;">
+
+
+
     <button id="addBtn">Upload Listing</button>
+
     <p id="uploadMsg"></p>
     <div id="loadingUpload" class="loading">Uploading...</div>
+
+
     <h5>Your Listings</h5>
     <div id="myListings"></div>
+
   </div>
+
 </section>
 
-<!-- PRODUCTS -->
+
+
+<!-- ================= AVAILABLE LISTINGS ================= -->
 <h3>Available Listings</h3>
+
 <div id="productContainer" class="grid"></div>
 
-<!-- DONATION -->
-<section>
+
+
+<!-- ================= DONATE SECTION ================= -->
+<section id="donate">
+
   <h3>Donate</h3>
+
   <input id="donateName" placeholder="Your Name">
+
   <select id="donateType">
     <option value="book">Book</option>
     <option value="money">Money</option>
     <option value="other">Other</option>
   </select>
+
   <textarea id="donateMsg" placeholder="Message"></textarea>
+
   <button id="donateBtn">Donate via WhatsApp</button>
+
 </section>
 
-</div>
+
+
+</div> <!-- container end -->
+
+
 
 <footer>
-<p>© 2025 Student Art Hub — Built by Aryan</p>
+  <p>© 2025 Student Art Hub — Built by Aayan</p>
 </footer>
 
-<!-- FIREBASE -->
+
+
+
+
+<!-- ================= SCRIPT ================= -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  sendPasswordResetEmail,
-  signInWithPhoneNumber,
-  RecaptchaVerifier,
-  sendEmailVerification
-} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  set,
-  push,
-  onValue,
-  remove,
-  update,
-  get
-} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
-  authDomain: "art-hub-77eb1.firebaseapp.com",
-  databaseURL: "https://art-hub-77eb1-default-rtdb.firebaseio.com",
-  projectId: "art-hub-77eb1",
-  storageBucket: "art-hub-77eb1.appspot.com",
-  messagingSenderId: "1097170910592",
-  appId: "1:1097170910592:web:8590c10f6d0662d6881565"
-};
+  /* --------------  FIREBASE IMPORTS -------------- */
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-const storage = getStorage(app);
+  import {
+    getAuth, createUserWithEmailAndPassword,
+    signInWithEmailAndPassword, signOut,
+    onAuthStateChanged, sendPasswordResetEmail,
+    signInWithPhoneNumber, RecaptchaVerifier,
+    sendEmailVerification, setPersistence,
+    browserLocalPersistence
+  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-// Menu toggle
-menuBtn.onclick = () => {
-  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-};
+  import {
+    getDatabase, ref, set, push,
+    onValue, remove, update, get
+  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
 
-// Tab switching
-emailTab.onclick = () => {
-  emailTab.classList.add('active');
-  phoneTab.classList.remove('active');
-  emailAuth.style.display = 'block';
-  phoneAuth.style.display = 'none';
-};
-phoneTab.onclick = () => {
-  phoneTab.classList.add('active');
-  emailTab.classList.remove('active');
-  phoneAuth.style.display = 'block';
-  emailAuth.style.display = 'none';
-};
+  import {
+    getStorage,
+    ref as storageRef,
+    uploadBytes,
+    getDownloadURL
+  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
-// Password strength checker
-password.oninput = () => {
-  const strength = password.value.length < 6 ? 'Weak' : password.value.length < 10 ? 'Medium' : 'Strong';
-  passwordStrength.textContent = 'Password Strength: ' + strength;
-  passwordStrength.className = strength === 'Strong' ? 'strength strong' : 'strength';
-};
 
-// Role change for email
-role.onchange = () => {
-  whatsapp.style.display = (role.value === "seller") ? "block" : "none";
-};
 
-// Role change for phone
-rolePhone.onchange = () => {
-  whatsappPhone.style.display = (rolePhone.value === "seller") ? "block" : "none";
-};
+  /* --------------  FIREBASE CONFIG -------------- */
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+    authDomain: "art-hub-77eb1.firebaseapp.com",
+    databaseURL: "https://art-hub-77eb1-default-rtdb.firebaseio.com",
+    projectId: "art-hub-77eb1",
+    storageBucket: "art-hub-77eb1.appspot.com",
+    messagingSenderId: "1097170910592",
+    appId: "1:1097170910592:web:8590c10f6d0662d6881565"
+  };
 
-// Email Signup
-signupBtn.onclick = async ()=>{
-  loadingAuth.style.display = "block";
-  if (!email.value || !password.value) {
-    authMsg.textContent = "Email aur password daalo!";
-    loadingAuth.style.display = "none";
-    return;
-  }
-  if (role.value === "seller" && !whatsapp.value) {
-    authMsg.textContent = "Seller ke liye WhatsApp number daalo!";
-    loadingAuth.style.display = "none";
-    return;
-  }
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
-    await sendEmailVerification(userCredential.user);
-    await set(ref(db, 'users/' + userCredential.user.uid), { 
-      role: role.value, 
-      whatsapp: whatsapp.value || null,
-      authType: 'email',
-      name: null // Name will be added later
-    });
-    authMsg.textContent = "Signup successful! Email verify karo inbox se.";
-    loadingAuth.style.display = "none";
-    showNameModal(userCredential.user.uid); // Show name modal
-  } catch (error) {
-    authMsg.textContent = "Error: " + error.message;
-    loadingAuth.style.display = "none";
-  }
-};
 
-// Email Login
-loginBtn.onclick = async ()=>{
-  loadingAuth.style.display = "block";
-  if (!email.value || !password.value) {
-    authMsg.textContent = "Email aur password daalo!";
-    loadingAuth.style.display = "none";
-    return;
-  }
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
-    if (rememberMe.checked) {
-      auth.setPersistence('local'); // Remember me
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getDatabase(app);
+  const storage = getStorage(app);
+
+
+  /* GLOBAL */
+  let currentUserRole = null;
+
+
+
+  /* ================= UI EVENTS ================= */
+
+  menuBtn.onclick = () => {
+    dropdown.style.display =
+      dropdown.style.display === "block" ? "none" : "block";
+  };
+
+
+  /* -------- AUTH TABS -------- */
+
+  emailTab.onclick = () => {
+    emailTab.classList.add("active");
+    phoneTab.classList.remove("active");
+    emailAuth.style.display = "block";
+    phoneAuth.style.display = "none";
+  };
+
+  phoneTab.onclick = () => {
+    phoneTab.classList.add("active");
+    emailTab.classList.remove("active");
+    phoneAuth.style.display = "block";
+    emailAuth.style.display = "none";
+  };
+
+
+
+  /* -------- PASSWORD STRENGTH -------- */
+
+  password.oninput = () => {
+
+    const len = password.value.length;
+
+    const strength =
+      len < 6 ? "Weak" :
+      len < 10 ? "Medium" : "Strong";
+
+    passwordStrength.textContent =
+      "Password Strength: " + strength;
+
+    passwordStrength.className =
+      strength === "Strong" ? "strength strong" : "strength";
+  };
+
+
+
+  /* -------- ROLE HANDLING -------- */
+
+  role.onchange = () => {
+    whatsapp.style.display =
+      role.value === "seller" ? "block" : "none";
+  };
+
+  rolePhone.onchange = () => {
+    whatsappPhone.style.display =
+      rolePhone.value === "seller" ? "block" : "none";
+  };
+
+
+
+  /* ===================================================
+     SIGNUP
+  =================================================== */
+  signupBtn.onclick = async () => {
+
+    loadingAuth.style.display = "block";
+
+    if (!email.value || !password.value) {
+      authMsg.textContent = "Email aur password daalo!";
+      return loadingAuth.style.display = "none";
     }
-    authMsg.textContent = "Login successful!";
-    loadingAuth.style.display = "none";
-    showNameModal(userCredential.user.uid); // Show name modal
-  } catch (error) {
-    authMsg.textContent = "Error: " + error.message;
-    loadingAuth.style.display = "none";
-  }
-};
 
-// Forgot Password
-forgotBtn.onclick = async () => {
-  if (!email.value) {
-    authMsg.textContent = "Email daalo!";
-    return;
-  }
-  try {
-    await sendPasswordResetEmail(auth, email.value, {
-      url: window.location.href,
-      handleCodeInApp: false
-    });
-    authMsg.textContent = "Password reset email bheja gaya. Inbox check karo!";
-  } catch (error) {
-    authMsg.textContent = "Error: " + error.message;
-  }
-};
-
-// Phone OTP Send
-sendOtpBtn.onclick = async () => {
-  if (!phoneNumber.value) {
-    authMsg.textContent = "Phone number daalo!";
-    return;
-  }
-  try {
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'sendOtpBtn', {
-      size: 'invisible',
-      callback: (response) => {
-        // reCAPTCHA solved
-      }
-    });
-    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber.value, window.recaptchaVerifier);
-    window.confirmationResult = confirmationResult;
-    otpInput.style.display = 'block';
-    verifyOtpBtn.style.display = 'block';
-    sendOtpBtn.style.display = 'none';
-    authMsg.textContent = "OTP bheja gaya! Enter karo.";
-  } catch (error) {
-    authMsg.textContent = "Error sending OTP: " + error.message;
-  }
-};
-
-// Phone OTP Verify
-verifyOtpBtn.onclick = async () => {
-  if (!otpInput.value) {
-    authMsg.textContent = "OTP daalo!";
-    return;
-  }
-  try {
-    const result = await window.confirmationResult.confirm(otpInput.value);
-    await set(ref(db, 'users/' + result.user.uid), { 
-      role: rolePhone.value, 
-      whatsapp: whatsappPhone.value || null,
-      authType: 'phone',
-      name: null
-    });
-    authMsg.textContent = "Phone login successful!";
-    showNameModal(result.user.uid); // Show name modal
-  } catch (error) {
-    authMsg.textContent = "Invalid OTP: " + error.message;
-  }
-};
-
-// Show Name Modal
-function showNameModal(uid) {
-  nameModal.style.display = 'flex';
-  submitNameBtn.onclick = async () => {
-    if (!userNameInput.value.trim()) {
-      nameMsg.textContent = "Name daalo!";
-      return;
+    if (role.value === "seller" && !whatsapp.value) {
+      authMsg.textContent = "Seller ke liye WhatsApp number daalo!";
+      return loadingAuth.style.display = "none";
     }
+
     try {
-      await update(ref(db, 'users/' + uid), { name: userNameInput.value.trim() });
-      nameModal.style.display = 'none';
-      loadDashboard(uid);
-    } catch (error) {
-      nameMsg.textContent = "Error saving name: " + error.message;
+
+      const userCredential =
+        await createUserWithEmailAndPassword(auth, email.value, password.value);
+
+      await sendEmailVerification(userCredential.user);
+
+      await set(ref(db, "users/" + userCredential.user.uid), {
+        role: role.value,
+        whatsapp: whatsapp.value || null,
+        authType: "email",
+        name: null
+      });
+
+      authMsg.textContent = "Signup successful!";
+
+      showNameModal(userCredential.user.uid);
+
+    } catch (e) {
+      authMsg.textContent = "Error: " + e.message;
+    }
+
+    loadingAuth.style.display = "none";
+  };
+
+
+
+  /* ===================================================
+     LOGIN
+  =================================================== */
+  loginBtn.onclick = async () => {
+
+    loadingAuth.style.display = "block";
+
+    if (!email.value || !password.value) {
+      authMsg.textContent = "Email aur password daalo!";
+      return loadingAuth.style.display = "none";
+    }
+
+    try {
+
+      await setPersistence(auth, browserLocalPersistence);
+
+      const userCredential =
+        await signInWithEmailAndPassword(auth, email.value, password.value);
+
+      authMsg.textContent = "Login successful!";
+
+      showNameModal(userCredential.user.uid);
+
+    } catch (e) {
+      authMsg.textContent = "Error: " + e.message;
+    }
+
+    loadingAuth.style.display = "none";
+  };
+
+
+
+  /* RESET PASSWORD */
+  forgotBtn.onclick = async () => {
+    if (!email.value) return authMsg.textContent = "Email daalo!";
+
+    await sendPasswordResetEmail(auth, email.value);
+    authMsg.textContent = "Password reset email sent!";
+  };
+
+
+
+  /* ===================================================
+     OTP LOGIN
+  =================================================== */
+  sendOtpBtn.onclick = async () => {
+
+    if (!phoneNumber.value)
+      return authMsg.textContent = "Phone number daalo!";
+
+    window.recaptchaVerifier =
+      new RecaptchaVerifier(auth, "sendOtpBtn", { size: "invisible" });
+
+    const confirmationResult =
+      await signInWithPhoneNumber(auth, phoneNumber.value, window.recaptchaVerifier);
+
+    window.confirmationResult = confirmationResult;
+
+    otpInput.style.display = "block";
+    verifyOtpBtn.style.display = "block";
+    sendOtpBtn.style.display = "none";
+
+    authMsg.textContent = "OTP bheja!";
+  };
+
+
+  verifyOtpBtn.onclick = async () => {
+
+    if (!otpInput.value)
+      return authMsg.textContent = "OTP daalo!";
+
+    try {
+
+      const result =
+        await window.confirmationResult.confirm(otpInput.value);
+
+      await set(ref(db, "users/" + result.user.uid), {
+        role: rolePhone.value,
+        whatsapp: whatsappPhone.value || null,
+        authType: "phone",
+        name: null
+      });
+
+      authMsg.textContent = "Phone login successful!";
+      showNameModal(result.user.uid);
+
+    } catch {
+      authMsg.textContent = "Invalid OTP!";
     }
   };
-}
-
-// Load Dashboard
-function loadDashboard(uid) {
-  get(ref(db, 'users/' + uid)).then((snapshot) => {
-    const user = snapshot.val();
-    userInfo.textContent = `Hello, ${user.name}! Role: ${user.role}`;
-    if (user.role === 'seller') {
-      sellerPanel.style.display = 'block';
-      loadMyListings(uid);
-    }
-    dashboard.style.display = 'block';
-    authSection.style.display = 'none';
-    userMenu.style.display = 'block';
-    loadStats(uid);
-    loadRecentActivity(uid);
-  });
-}
-
-// Load Stats
-function loadStats(uid) {
-  onValue(ref(db, 'listings'), (snapshot) => {
-    const listings = snapshot.val() || {};
-    totalListings.textContent = Object.keys(listings).length;
-    myListingsCount.textContent = Object.values(listings).filter(l => l.sellerId === uid).length;
-  });
-  onValue(ref(db, 'donations'), (snapshot) => {
-    const donations = snapshot.val() || {};
-    donationsCount.textContent = Object.values(donations).filter(d => d.userId === uid).length;
-  });
-}
 
 
-// Load Recent Activity
-function loadRecentActivity(uid) {
-  onValue(ref(db, 'listings'), (snapshot) => {
-    const listings = snapshot.val() || {};
-    const myListings = Object.values(listings).filter(l => l.sellerId === uid);
-    recentActivity.innerHTML = myListings.length > 0 ? myListings.slice(-3).map(l => `<p>${l.title} - ₹${l.price}</p>`).join('') : 'No recent activity.';
-  });
-}
 
-// Load My Listings (for sellers)
-function loadMyListings(uid) {
-  onValue(ref(db, 'listings'), (snapshot) => {
-    const listings = snapshot.val() || {};
-    const myListings = Object.values(listings).filter(l => l.sellerId === uid);
-    myListingsDiv.innerHTML = myListings.map(l => `
-      <div class="card">
-        <img src="${l.imageUrl || 'https://via.placeholder.com/150'}" alt="${l.title}">
-        <h4>${l.title}</h4>
-        <p>₹${l.price}</p>
-        <button onclick="deleteListing('${l.id}')">Delete</button>
-      </div>
-    `).join('');
-  });
-}
+  /* ===================================================
+     NAME MODAL
+  =================================================== */
+  function showNameModal(uid) {
 
-// Delete Listing
-window.deleteListing = (id) => {
-  remove(ref(db, 'listings/' + id));
-};
+    nameModal.style.display = "flex";
 
-// Add Listing (with image upload)
-addBtn.onclick = async () => {
-  loadingUpload.style.display = "block";
-  if (!titleInput.value || !priceInput.value || !categoryInput.value) {
-    uploadMsg.textContent = "Saare fields fill karo!";
-    loadingUpload.style.display = "none";
-    return;
+    submitNameBtn.onclick = async () => {
+
+      if (!userNameInput.value.trim())
+        return nameMsg.textContent = "Name daalo!";
+
+      await update(
+        ref(db, "users/" + uid),
+        { name: userNameInput.value.trim() }
+      );
+
+      nameModal.style.display = "none";
+      loadDashboard(uid);
+    };
   }
-  const uid = auth.currentUser.uid;
-  const file = imageInput.files[0];
-  let imageUrl = null;
-  if (file) {
-    const storageReference = storageRef(storage, 'listings/' + uid + '/' + file.name);
-    await uploadBytes(storageReference, file);
-    imageUrl = await getDownloadURL(storageReference);
-  }
-  const newListingRef = push(ref(db, 'listings'));
-  await set(newListingRef, {
-    id: newListingRef.key,
-    sellerId: uid,
-    title: titleInput.value,
-    price: priceInput.value,
-    category: categoryInput.value,
-    imageUrl: imageUrl,
-    timestamp: Date.now()
-  });
-  uploadMsg.textContent = "Listing added successfully!";
-  loadingUpload.style.display = "none";
-  titleInput.value = '';
-  priceInput.value = '';
-  categoryInput.value = '';
-  imageInput.value = '';
-};
 
-// Logout
-logoutBtn.onclick = async () => {
-  await signOut(auth);
-  dashboard.style.display = 'none';
-  authSection.style.display = 'block';
-  userMenu.style.display = 'none';
-  authMsg.textContent = "Logged out!";
-};
 
-// Auth State Listener
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loadDashboard(user.uid);
-  } else {
-    dashboard.style.display = 'none';
-    authSection.style.display = 'block';
-    userMenu.style.display = 'none';
-  }
-});
 
-// Load All Listings
-function loadListings() {
-  onValue(ref(db, 'listings'), (snapshot) => {
-    const listings = snapshot.val() || {};
-    productContainer.innerHTML = Object.values(listings).map(l => `
-      <div class="card">
-        <img src="${l.imageUrl || 'https://via.placeholder.com/150'}" alt="${l.title}">
-        <h4>${l.title}</h4>
-        <p>₹${l.price}</p>
-        <p>Category: ${l.category}</p>
-        <button onclick="contactSeller('${l.sellerId}')">Contact Seller</button>
-      </div>
-    `).join('');
-  });
-}
+  /* ===================================================
+     DASHBOARD LOAD
+  =================================================== */
+  function loadDashboard(uid) {
 
-// Contact Seller (via WhatsApp)
-window.contactSeller = (sellerId) => {
-  get(ref(db, 'users/' + sellerId)).then((snapshot) => {
-    const seller = snapshot.val();
-    if (seller.whatsapp) {
-      window.open(`https://wa.me/${seller.whatsapp}?text=Hi, interested in your listing!`, '_blank');
-    } else {
-      alert('Seller WhatsApp not available.');
-    }
-  });
-};
+    get(ref(db, "users/" + uid)).then(snap => {
 
-// Search Listings
-searchBtn.onclick = () => {
-  const query = searchBar.value.toLowerCase();
-  onValue(ref(db, 'listings'), (snapshot) => {
-    const listings = snapshot.val() || {};
-    const filtered = Object.values(listings).filter(l => l.title.toLowerCase().includes(query) || l.category.toLowerCase().includes(query));
-    productContainer.innerHTML = filtered.map(l => `
-      <div class="card">
-        <img src="${l.imageUrl || 'https://via.placeholder.com/150'}" alt="${l.title}">
-        <h4>${l.title}</h4>
-        <p>₹${l.price}</p>
-        <p>Category: ${l.category}</p>
-        <button onclick="contactSeller('${l.sellerId}')">Contact Seller</button>
-      </div>
-    `).join('');
-  });
-};
+      const user = snap.val();
 
-// Donate via WhatsApp
-donateBtn.onclick = () => {
-  if (!donateName.value) {
-    alert('Name daalo!');
-    return;
-  }
-  const msg = `Hi, I want to donate: ${donateType.value}. Name: ${donateName.value}. Message: ${donateMsg.value}`;
-  window.open(`https://wa.me/919878455467?text=${encodeURIComponent(msg)}`, '_blank'); // Replace with your WhatsApp number
-  // Save donation to DB
-  const uid = auth.currentUser ? auth.currentUser.uid : null;
-  if (uid) {
-    push(ref(db, 'donations'), {
-      userId: uid,
-      type: donateType.value,
-      message: donateMsg.value,
-      timestamp: Date.now()
+      currentUserRole = user.role;
+
+      userInfo.textContent =
+        `Hello, ${user.name}! Role: ${user.role}`;
+
+      if (user.role === "seller") {
+        sellerPanel.style.display = "block";
+        loadMyListings(uid);
+      }
+
+      dashboard.style.display = "block";
+      authSection.style.display = "none";
+      userMenu.style.display = "block";
+
+      loadStats(uid);
+      loadRecentActivity(uid);
     });
   }
-};
 
-// Dashboard Buttons
-addListingBtn.onclick = () => {
-  sellerPanel.style.display = sellerPanel.style.display === 'none' ? 'block' : 'none';
-};
-browseBtn.onclick = () => {
+
+
+  /* -------- STATS -------- */
+  function loadStats(uid) {
+
+    onValue(ref(db, "listings"), snap => {
+
+      const listings = snap.val() || {};
+
+      totalListings.textContent = Object.keys(listings).length;
+
+      myListingsCount.textContent =
+        Object.values(listings).filter(l => l.sellerId === uid).length;
+
+    });
+
+    onValue(ref(db, "donations"), snap => {
+
+      const donations = snap.val() || {};
+
+      donationsCount.textContent =
+        Object.values(donations).filter(d => d.userId === uid).length;
+
+    });
+
+  }
+
+
+
+  /* -------- RECENT ACTIVITY -------- */
+  function loadRecentActivity(uid) {
+
+    onValue(ref(db, "listings"), snap => {
+
+      const listings = snap.val() || {};
+
+      const my = Object.values(listings)
+        .filter(l => l.sellerId === uid);
+
+      recentActivity.innerHTML =
+        my.length
+          ? my.slice(-3).map(l => `<p>${l.title} - ₹${l.price}</p>`).join("")
+          : "No recent activity.";
+    });
+  }
+
+
+
+  /* ===================================================
+     MY LISTINGS PANEL
+  =================================================== */
+  function loadMyListings(uid) {
+
+    onValue(ref(db, "listings"), snap => {
+
+      const listings = snap.val() || {};
+
+      const my = Object.values(listings)
+        .filter(l => l.sellerId === uid);
+
+      myListings.innerHTML = my.map(l => `
+
+          <div class="card">
+            <img src="${l.imageUrl || 'https://via.placeholder.com/150'}">
+            <h4>${l.title}</h4>
+            <p>₹${l.price}</p>
+            <button onclick="deleteListing('${l.id}')">Delete</button>
+          </div>
+
+      `).join("");
+    });
+  }
+
+  window.deleteListing = (id) =>
+    remove(ref(db, "listings/" + id));
+
+
+
+  /* ===================================================
+     UPLOAD LISTING
+  =================================================== */
+  addBtn.onclick = async () => {
+
+    if (currentUserRole !== "seller")
+      return alert("Only sellers can upload listings.");
+
+    if (!titleInput.value || !priceInput.value || !categoryInput.value)
+      return uploadMsg.textContent = "Saare fields fill karo!";
+
+
+
+    /* VALIDATION FOR CLASS + NOTES */
+    if ((categoryInput.value === "book" || categoryInput.value === "notes") &&
+        !classInput.value)
+      return uploadMsg.textContent = "Class required for Book/Notes!";
+
+    if (categoryInput.value === "notes") {
+
+      if (!subjectInput.value || !boardInput.value)
+        return uploadMsg.textContent = "Subject + Board required for Notes!";
+
+      if (!pdfInput.files[0])
+        return uploadMsg.textContent = "Upload PDF for notes!";
+    }
+
+
+
+    loadingUpload.style.display = "block";
+
+    const uid = auth.currentUser.uid;
+
+    let imageUrl = null;
+    let pdfUrl   = null;
+
+
+
+    /* UPLOAD IMAGE IF PRESENT */
+    const file = imageInput.files[0];
+
+    if (file) {
+      const ref1 = storageRef(storage, "listings/" + uid + "/" + file.name);
+      await uploadBytes(ref1, file);
+      imageUrl = await getDownloadURL(ref1);
+    }
+
+
+    /* UPLOAD PDF IF NOTES */
+    if (pdfInput.files[0]) {
+      const ref2 = storageRef(storage, "notes/" + uid + "/" + pdfInput.files[0].name);
+      await uploadBytes(ref2, pdfInput.files[0]);
+      pdfUrl = await getDownloadURL(ref2);
+    }
+
+
+    const newRef = push(ref(db, "listings"));
+
+    await set(newRef, {
+
+      id: newRef.key,
+      sellerId: uid,
+
+      title: titleInput.value,
+      price: priceInput.value,
+
+      category: categoryInput.value,
+
+      class: classInput.value || null,
+      subject: subjectInput.value || null,
+      board: boardInput.value || null,
+
+      imageUrl,
+      pdfUrl,
+
+      timestamp: Date.now()
+
+    });
+
+
+    uploadMsg.textContent = "Listing added!";
+    loadingUpload.style.display = "none";
+
+    titleInput.value =
+    priceInput.value =
+    classInput.value =
+    subjectInput.value =
+    boardInput.value = "";
+
+    imageInput.value = "";
+    pdfInput.value = "";
+  };
+
+
+
+  /* ===================================================
+     LOGOUT
+  =================================================== */
+  logoutBtn.onclick = async () => {
+
+    await signOut(auth);
+
+    dashboard.style.display = "none";
+    authSection.style.display = "block";
+    userMenu.style.display = "none";
+
+    authMsg.textContent = "Logged out!";
+  };
+
+
+
+  /* ===================================================
+     AUTH STATE WATCHER
+  =================================================== */
+  onAuthStateChanged(auth, (user) => {
+
+    if (user) loadDashboard(user.uid);
+    else {
+      dashboard.style.display = "none";
+      authSection.style.display = "block";
+      userMenu.style.display = "none";
+    }
+  });
+
+
+
+  /* ===================================================
+     LOAD LISTINGS (HOME)
+  =================================================== */
+  function loadListings() {
+
+    onValue(ref(db, "listings"), snap => {
+
+      const listings = snap.val() || {};
+
+      productContainer.innerHTML =
+        Object.values(listings).map(l => `
+
+          <div class="card">
+            <img src="${l.imageUrl || 'https://via.placeholder.com/150'}">
+
+            <h4>${l.title}</h4>
+
+            <p>₹${l.price}</p>
+
+            ${l.class ? `<p>Class: ${l.class}</p>` : ""}
+            ${l.subject ? `<p>Subject: ${l.subject}</p>` : ""}
+            ${l.board ? `<p>Board: ${l.board}</p>` : ""}
+
+            ${l.pdfUrl ? `<a href="${l.pdfUrl}" target="_blank">View Notes (PDF)</a>` : ""}
+
+            <button onclick="contactSeller('${l.sellerId}')">
+                Contact Seller
+            </button>
+          </div>
+
+        `).join("");
+    });
+  }
+
+
+
+  /* CONTACT SELLER */
+  window.contactSeller = (id) => {
+
+    get(ref(db, "users/" + id)).then(snap => {
+
+      const seller = snap.val();
+
+      seller?.whatsapp
+        ? window.open(`https://wa.me/${seller.whatsapp}?text=Hi, interested!`)
+        : alert("Seller WhatsApp not available.");
+    });
+  };
+
+
+
+  /* SEARCH */
+  searchBtn.onclick = () => {
+
+    const q = searchBar.value.toLowerCase();
+
+    onValue(ref(db, "listings"), snap => {
+
+      const listings = snap.val() || {};
+
+      const filtered = Object.values(listings).filter(l =>
+        (l.title || "").toLowerCase().includes(q) ||
+        (l.category || "").toLowerCase().includes(q) ||
+        (l.class || "").toLowerCase().includes(q) ||
+        (l.subject || "").toLowerCase().includes(q)
+      );
+
+      productContainer.innerHTML =
+        filtered.map(l => `
+
+          <div class="card">
+            <img src="${l.imageUrl || 'https://via.placeholder.com/150'}">
+
+            <h4>${l.title}</h4>
+            <p>₹${l.price}</p>
+
+            ${l.class ? `<p>Class: ${l.class}</p>` : ""}
+            ${l.subject ? `<p>Subject: ${l.subject}</p>` : ""}
+
+            ${l.pdfUrl ? `<a href="${l.pdfUrl}" target="_blank">View PDF</a>` : ""}
+
+            <button onclick="contactSeller('${l.sellerId}')">
+              Contact Seller
+            </button>
+          </div>
+
+        `).join("");
+    });
+  };
+
+
+
+  /* DONATION */
+  donateBtn.onclick = () => {
+
+    if (!donateName.value)
+      return alert("Name daalo!");
+
+    const msg =
+      `Hi, donate: ${donateType.value}, Name: ${donateName.value}, Message: ${donateMsg.value}`;
+
+    window.open(
+      `https://wa.me/919878455467?text=${encodeURIComponent(msg)}`,
+      "_blank"
+    );
+
+    const uid = auth.currentUser?.uid;
+
+    if (uid)
+      push(ref(db, "donations"), {
+        userId: uid,
+        type: donateType.value,
+        message: donateMsg.value,
+        timestamp: Date.now()
+      });
+
+  };
+
+
+  /* BUTTON ACTIONS */
+  addListingBtn.onclick = () => {
+    if (currentUserRole !== "seller")
+      return alert("Only sellers can upload!");
+    sellerPanel.style.display =
+      sellerPanel.style.display === "none" ? "block" : "none";
+  };
+
+  browseBtn.onclick = loadListings;
+  profileBtn.onclick = () => window.location.href = "profile.html";
+  donateBtnDash.onclick = () => window.location.href = "#donate";
+
+
+  /* START */
   loadListings();
-};
-profileBtn.onclick = () => {
-  alert('Profile page coming soon!');
-};
-donateBtnDash.onclick = () => {
-  window.location.href = '#donate'; // Scroll to donate section
-};
 
-// Initial Load
-loadListings();
 </script>
+
+</body>
+</html>
