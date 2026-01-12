@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>My Profile</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#f2f2f2}
+header{background:#1e3a8a;color:#fff;padding:15px}
+.container{max-width:700px;margin:20px auto;background:#fff;padding:20px;border-radius:12px}
+input,textarea{padding:10px;width:100%;margin:8px 0;border:1px solid #ccc;border-radius:6px}
+button{padding:10px 15px;border:none;border-radius:6px;cursor:pointer;background:#1e3a8a;color:white;margin-top:6px}
+h3{margin-top:25px}
+.back{background:#4caf50}
+label{font-weight:bold;margin-top:10px;display:block}
+.note{color:#666;font-size:13px}
+.section{border-top:1px solid #eee;margin-top:20px;padding-top:15px}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>My Profile</h2>
+</header>
+
+<div class="container">
+
+  <p><b>Email:</b> <span id="profileEmail"></span></p>
+
+  <label>Name</label>
+  <input id="profileName" type="text">
+
+  <label>Role</label>
+  <input id="profileRole" type="text" disabled>
+
+  <div id="waSection" style="display:none;">
+    <label>WhatsApp</label>
+    <input id="profileWhatsapp" type="text">
+    <span class="note">Only for sellers — buyers don't need it.</span>
+  </div>
+
+  <label>Address</label>
+  <textarea id="profileAddress" rows="3"></textarea>
+
+  <label>Bio</label>
+  <textarea id="profileBio" rows="3"></textarea>
+
+  <button id="saveProfileBtn">Save Changes</button>
+  <p id="profileMsg"></p>
+
+  <!-- CHANGE PASSWORD -->
+  <div class="section">
+    <h3>Change Password</h3>
+    <input id="newPassword" type="password" placeholder="New Password">
+    <button id="changePassBtn">Change Password</button>
+    <p id="passMsg"></p>
+  </div>
+
+  <!-- SELLER EARNINGS -->
+  <div class="section">
+    <h3>Seller Earnings</h3>
+    <p>Total Listings: <span id="earnListings">0</span></p>
+    <p>Total Estimated Value: ₹<span id="earnTotal">0</span></p>
+  </div>
+
+  <!-- ORDER HISTORY -->
+  <div class="section">
+    <h3>Order History</h3>
+    <div id="ordersBox">Coming soon — your purchases & sales will show here.</div>
+  </div>
+
+  <button class="back" onclick="history.back()">⬅ Go Back</button>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  updatePassword 
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { 
+  getDatabase, 
+  ref, 
+  get, 
+  update 
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+  authDomain: "art-hub-77eb1.firebaseapp.com",
+  databaseURL: "https://art-hub-77eb1-default-rtdb.firebaseio.com",
+  projectId: "art-hub-77eb1",
+  storageBucket: "art-hub-77eb1.appspot.com",
+  messagingSenderId: "1097170910592",
+  appId: "1:1097170910592:web:8590c10f6d0662d6881565"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// LOAD USER DATA
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const snap = await get(ref(db, "users/" + user.uid));
+  const data = snap.val() || {};
+
+  profileEmail.textContent = user.email || "Phone Login";
+  profileName.value = data.name || "";
+  profileRole.value = data.role || "";
+  profileAddress.value = data.address || "";
+  profileBio.value = data.bio || "";
+
+  if (data.role === "seller") {
+    waSection.style.display = "block";
+    profileWhatsapp.value = data.whatsapp || "";
+    loadEarnings(user.uid);
+  }
+});
+
+// SAVE PROFILE
+saveProfileBtn.onclick = async () => {
+  const uid = auth.currentUser.uid;
+
+  await update(ref(db, "users/" + uid), {
+    name: profileName.value.trim(),
+    whatsapp: profileWhatsapp?.value || null,
+    address: profileAddress.value.trim(),
+    bio: profileBio.value.trim()
+  });
+
+  profileMsg.textContent = "Profile updated successfully!";
+};
+
+// CHANGE PASSWORD
+changePassBtn.onclick = async () => {
+  try {
+    await updatePassword(auth.currentUser, newPassword.value);
+    passMsg.textContent = "Password changed!";
+  } catch (e) {
+    passMsg.textContent = "Please login again to change password.";
+  }
+};
+
+// SELLER EARNINGS
+async function loadEarnings(uid) {
+  const snap = await get(ref(db, "listings"));
+  const listings = snap.val() || {};
+
+  const my = Object.values(listings).filter(l => l.sellerId === uid);
+
+  earnListings.textContent = my.length;
+  earnTotal.textContent = my.reduce((t, l) => t + Number(l.price || 0), 0);
+}
+
+// ORDER HISTORY (placeholder)
+ordersBox.textContent = "Coming soon — will show your purchases and sales.";
+
+</script>
+
+</body>
+</html>
