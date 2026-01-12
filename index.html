@@ -68,17 +68,19 @@
         border-radius: 5px;
       }
 
-      .grid {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-      }
+      /* ===== RESPONSIVE GRID ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+
 
       .card {
         background: #fff;
         padding: 15px;
         border-radius: 10px;
-        width: 230px;
+        
         text-align: center;
       }
 
@@ -219,10 +221,89 @@
       }
 
       @media (max-width: 600px) {
-        .grid { flex-direction: column; }
+     
         .card { width: 100%; }
         header { flex-direction: column; align-items: flex-start; }
       }
+/* ===== LOADER ===== */
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ddd;
+  border-top: 4px solid #1e3a8a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 30px auto;
+  display: none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+/* ===== SELLER DASHBOARD IMPROVEMENTS ===== */
+
+.dashboard h3 {
+  margin-bottom: 10px;
+}
+
+.actions button {
+  background: #2563eb;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.actions button:hover {
+  opacity: 0.9;
+}
+
+#sellerPanel {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+#sellerPanel h4 {
+  margin-bottom: 10px;
+  color: #1e3a8a;
+}
+#myListings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+/* Seller listing card look */
+#myListings .card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+/* Title */
+#myListings .card h4 {
+  margin: 8px 0 4px;
+  font-size: 15px;
+}
+
+/* Price */
+#myListings .card p {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Delete button */
+#myListings .card button {
+  background: #dc2626;
+  color: #fff;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
 
   </style>
 
@@ -242,10 +323,6 @@
     <a href="sketches.html">Custom Sketches</a>
     <a href="notes.html">Handwritten Notes</a>
     <a href="donations.html">Donations</a>
-    <button id="themeToggle" class="theme-btn">
-  🌙 Dark Mode
-</button>
-
   </nav>
 
   <div id="userMenu" class="user-menu">
@@ -494,6 +571,35 @@
 
 <!-- ================= AVAILABLE LISTINGS ================= -->
 <h3>Available Listings</h3>
+<div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+  <select id="filterCategory">
+    <option value="">All Categories</option>
+    <option value="art">Art</option>
+    <option value="book">Book</option>
+    <option value="sketch">Custom Sketch</option>
+    <option value="notes">Handwritten Notes</option>
+  </select>
+
+  <select id="filterClass">
+    <option value="">All Classes</option>
+    <option value="1">Class 1</option>
+    <option value="2">Class 2</option>
+    <option value="3">Class 3</option>
+    <option value="4">Class 4</option>
+    <option value="5">Class 5</option>
+    <option value="6">Class 6</option>
+    <option value="7">Class 7</option>
+    <option value="8">Class 8</option>
+    <option value="9">Class 9</option>
+    <option value="10">Class 10</option>
+    <option value="11">Class 11</option>
+    <option value="12">Class 12</option>
+  </select>
+
+  <button id="applyFilterBtn">Apply Filter</button>
+</div>
+
+<div id="loader" class="loader"></div>
 
 <div id="productContainer" class="grid"></div>
 
@@ -1108,9 +1214,12 @@ categoryInput.dispatchEvent(new Event("change"));
   =================================================== */
   function loadListings() {
 
+document.getElementById("loader").style.display = "block";
+
     onValue(ref(db, "listings"), snap => {
 
       const listings = snap.val() || {};
+document.getElementById("loader").style.display = "none";
 
       productContainer.innerHTML =
         Object.values(listings).map(l => `
@@ -1223,16 +1332,63 @@ categoryInput.dispatchEvent(new Event("change"));
 
 
   /* BUTTON ACTIONS */
-  addListingBtn.onclick = () => {
-    if (currentUserRole !== "seller")
-      return alert("Only sellers can upload!");
-    sellerPanel.style.display =
-      sellerPanel.style.display === "none" ? "block" : "none";
-  };
+ addListingBtn.onclick = () => {
+  if (currentUserRole !== "seller")
+    return alert("Only sellers can upload!");
 
-  browseBtn.onclick = loadListings;
-  profileBtn.onclick = () => window.location.href = "profile.html";
-  donateBtnDash.onclick = () => window.location.href = "#donate";
+  sellerPanel.style.display =
+    sellerPanel.style.display === "none" ? "block" : "none";
+
+  // 👇 smooth scroll to seller panel
+  sellerPanel.scrollIntoView({ behavior: "smooth" });
+};
+
+browseBtn.onclick = loadListings;
+profileBtn.onclick = () => window.location.href = "profile.html";
+donateBtnDash.onclick = () => window.location.href = "#donate";
+
+// ===== FILTER LISTINGS =====
+applyFilterBtn.onclick = () => {
+
+  const selectedCategory = filterCategory.value;
+  const selectedClass = filterClass.value;
+
+  document.getElementById("loader").style.display = "block";
+
+get(ref(db, "listings")).then(snap => {
+
+
+    const listings = snap.val() || {};
+    document.getElementById("loader").style.display = "none";
+
+    const filtered = Object.values(listings).filter(l => {
+      const categoryMatch =
+        !selectedCategory || l.category === selectedCategory;
+
+      const classMatch =
+        !selectedClass || String(l.class) === selectedClass;
+
+      return categoryMatch && classMatch;
+    });
+
+    if (!filtered.length) {
+      productContainer.innerHTML = "<p>No matching listings 😕</p>";
+      return;
+    }
+
+    productContainer.innerHTML = filtered.map(l => `
+      <div class="card">
+        <img src="${l.imageUrl || 'https://via.placeholder.com/150'}">
+        <h4>${l.title}</h4>
+        <p>₹${l.price}</p>
+        ${l.class ? `<p>Class: ${l.class}</p>` : ""}
+        <button onclick="contactSeller('${l.sellerId}')">
+          Contact Seller
+        </button>
+      </div>
+    `).join("");
+  });
+};
 
 
   /* START */
