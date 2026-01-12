@@ -242,6 +242,10 @@
     <a href="sketches.html">Custom Sketches</a>
     <a href="notes.html">Handwritten Notes</a>
     <a href="donations.html">Donations</a>
+    <button id="themeToggle" class="theme-btn">
+  🌙 Dark Mode
+</button>
+
   </nav>
 
   <div id="userMenu" class="user-menu">
@@ -433,7 +437,7 @@
 
 
     <!-- CLASS FIELD -->
-    <select id="class">
+    <select id="classInput">
 <option value="">All Classes</option>
 <option value="1">Class 1</option>
 <option value="2">Class 2</option>
@@ -577,6 +581,7 @@
 
   /* GLOBAL */
   let currentUserRole = null;
+let recaptchaVerifier = null;
 
 
 
@@ -587,6 +592,19 @@
       dropdown.style.display === "block" ? "none" : "block";
   };
 
+categoryInput.onchange = () => {
+  if (categoryInput.value === "notes") {
+    subjectInput.style.display = "block";
+    boardInput.style.display = "block";
+    pdfInput.style.display = "block";
+    imageInput.style.display = "none";
+  } else {
+    subjectInput.style.display = "none";
+    boardInput.style.display = "none";
+    pdfInput.style.display = "none";
+    imageInput.style.display = "block";
+  }
+};
 
   /* -------- AUTH TABS -------- */
 
@@ -702,6 +720,13 @@
       const userCredential =
         await signInWithEmailAndPassword(auth, email.value, password.value);
 
+if (!userCredential.user.emailVerified) {
+  authMsg.textContent = "Please verify your email first!";
+  await signOut(auth);
+  loadingAuth.style.display = "none";
+  return;
+}
+
       authMsg.textContent = "Login successful!";
 
       showNameModal(userCredential.user.uid);
@@ -728,16 +753,22 @@
   /* ===================================================
      OTP LOGIN
   =================================================== */
-  sendOtpBtn.onclick = async () => {
+  
+sendOtpBtn.onclick = async () => {
 
-    if (!phoneNumber.value)
-      return authMsg.textContent = "Phone number daalo!";
+  if (!phoneNumber.value)
+    return authMsg.textContent = "Phone number daalo!";
 
-    window.recaptchaVerifier =
-      new RecaptchaVerifier(auth, "sendOtpBtn", { size: "invisible" });
+  // ✅ FIX: recaptcha sirf ek baar banao
+  if (!recaptchaVerifier) {
+    recaptchaVerifier = new RecaptchaVerifier(auth, "sendOtpBtn", {
+      size: "invisible"
+    });
+  }
 
+  try {
     const confirmationResult =
-      await signInWithPhoneNumber(auth, phoneNumber.value, window.recaptchaVerifier);
+      await signInWithPhoneNumber(auth, phoneNumber.value, recaptchaVerifier);
 
     window.confirmationResult = confirmationResult;
 
@@ -745,8 +776,13 @@
     verifyOtpBtn.style.display = "block";
     sendOtpBtn.style.display = "none";
 
-    authMsg.textContent = "OTP bheja!";
-  };
+    authMsg.textContent = "OTP bhej diya 📲";
+
+  } catch (error) {
+    authMsg.textContent = error.message;
+  }
+};
+
 
 
   verifyOtpBtn.onclick = async () => {
@@ -759,12 +795,13 @@
       const result =
         await window.confirmationResult.confirm(otpInput.value);
 
-      await set(ref(db, "users/" + result.user.uid), {
-        role: rolePhone.value,
-        whatsapp: whatsappPhone.value || null,
-        authType: "phone",
-        name: null
-      });
+    await update(ref(db, "users/" + result.user.uid), {
+  role: rolePhone.value,
+  whatsapp: whatsappPhone.value || null,
+  authType: "phone"
+});
+// name ko overwrite mat karo
+
 
       authMsg.textContent = "Phone login successful!";
       showNameModal(result.user.uid);
@@ -807,9 +844,30 @@
 
     get(ref(db, "users/" + uid)).then(snap => {
 
-      const user = snap.val();
+     const user = snap.val();
 
-      currentUserRole = user.role;
+// ✅ FIX: agar naam pehle se hai to modal skip
+if (user.name) {
+  currentUserRole = user.role;
+
+  userInfo.textContent = `Hello, ${user.name}! Role: ${user.role}`;
+
+  if (user.role === "seller") {
+    sellerPanel.style.display = "block";
+    loadMyListings(uid);
+  }
+
+  dashboard.style.display = "block";
+  authSection.style.display = "none";
+  userMenu.style.display = "block";
+
+  loadStats(uid);
+  loadRecentActivity(uid);
+  return;
+}
+
+currentUserRole = user.role;
+
 
       userInfo.textContent =
         `Hello, ${user.name}! Role: ${user.role}`;
@@ -835,7 +893,13 @@
 
     onValue(ref(db, "listings"), snap => {
 
-      const listings = snap.val() || {};
+  if (!snap.exists()) {
+    productContainer.innerHTML = "<p>No listings yet 🚀</p>";
+    return;
+  }
+
+  const listings = snap.val() || {};
+
 
       totalListings.textContent = Object.keys(listings).length;
 
@@ -901,8 +965,12 @@
     });
   }
 
-  window.deleteListing = (id) =>
+  window.deleteListing = (id) => {
+  if (confirm("Delete this listing?")) {
     remove(ref(db, "listings/" + id));
+  }
+};
+
 
 
 
@@ -997,6 +1065,9 @@
 
     imageInput.value = "";
     pdfInput.value = "";
+    categoryInput.value = "";
+categoryInput.dispatchEvent(new Event("change"));
+
   };
 
 
