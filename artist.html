@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Artist Profile - Student Art Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{margin:0;font-family:Arial;background:#f3f4f6}
+header{background:#1e3a8a;color:#fff;padding:15px}
+.container{max-width:1100px;margin:auto;padding:16px}
+.profile{background:#fff;padding:16px;border-radius:10px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px}
+.card{background:#fff;border-radius:10px;padding:12px}
+.card img{width:100%;height:180px;object-fit:cover;border-radius:8px}
+button{background:#1e3a8a;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
+.small{font-size:13px;color:#555}
+.rating{color:#f59e0b;font-weight:bold}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <h2>🎨 Student Art Hub</h2>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ===== ARTIST PROFILE ===== -->
+<div class="profile">
+  <h2 id="artistName">Artist</h2>
+  <p class="small">Custom Sketch Artist</p>
+  <p id="artistRating" class="rating">⭐ No ratings yet</p>
+</div>
+
+<!-- ===== SKETCH LIST ===== -->
+<h3>Available Custom Sketches</h3>
+<div id="sketchGrid" class="grid"></div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getDatabase, ref, get, onValue, push, set } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+  authDomain:"art-hub-77eb1.firebaseapp.com",
+  databaseURL:"https://art-hub-77eb1-default-rtdb.firebaseio.com",
+  projectId:"art-hub-77eb1",
+  storageBucket:"art-hub-77eb1.appspot.com",
+  messagingSenderId:"1097170910592",
+  appId:"1:1097170910592:web:8590c10f6d0662d6881565"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+/* =====================
+   GET ARTIST ID
+===================== */
+const params = new URLSearchParams(window.location.search);
+const artistId = params.get("id");
+if(!artistId){
+  alert("Artist not found");
+  throw new Error("No artist id");
+}
+
+/* =====================
+   LOAD ARTIST INFO
+===================== */
+get(ref(db,"users/"+artistId)).then(snap=>{
+  const u=snap.val();
+  if(u){
+    document.getElementById("artistName").textContent = u.name || "Artist";
+  }
+});
+
+/* =====================
+   LOAD RATINGS
+===================== */
+onValue(ref(db,"ratings/"+artistId),snap=>{
+  const data=snap.val();
+  if(!data) return;
+  const arr=Object.values(data);
+  const avg=(arr.reduce((s,r)=>s+r.stars,0)/arr.length).toFixed(1);
+  document.getElementById("artistRating").textContent =
+    `⭐ ${avg} (${arr.length} reviews)`;
+});
+
+/* =====================
+   LOAD SKETCHES
+===================== */
+onValue(ref(db,"listings"),snap=>{
+  const all=snap.val()||{};
+  const list=Object.values(all).filter(
+    l=>l.category==="sketch" && l.sellerId===artistId
+  );
+
+  const box=document.getElementById("sketchGrid");
+
+  if(!list.length){
+    box.innerHTML="<p>No sketches uploaded.</p>";
+    return;
+  }
+
+  box.innerHTML = list.map(l=>`
+    <div class="card">
+      <img src="${l.imageUrl}">
+      <h4>${l.title}</h4>
+      <p class="small">${l.description||""}</p>
+      <p><b>₹${l.price}</b></p>
+      <button onclick="requestSketch('${l.title}','${l.price}')">
+        Request Sketch
+      </button>
+    </div>
+  `).join("");
+});
+
+/* =====================
+   REQUEST SKETCH
+===================== */
+window.requestSketch = async (title, price)=>{
+  if(!auth.currentUser){
+    alert("Please login first");
+    return;
+  }
+
+  const ok = confirm(
+    "Payment via UPI / Cash on Meet\n\nClick OK to continue to WhatsApp"
+  );
+  if(!ok) return;
+
+  // CREATE ORDER (rating ke liye base)
+  const r = push(ref(db,"orders"));
+  await set(r,{
+    id:r.key,
+    buyerId:auth.currentUser.uid,
+    sellerId:artistId,
+    sketchTitle:title,
+    price:price,
+    status:"pending",
+    rated:false,
+    time:Date.now()
+  });
+
+  // OPEN WHATSAPP
+  get(ref(db,"users/"+artistId)).then(snap=>{
+    const s=snap.val();
+    if(!s?.whatsapp){
+      alert("Seller WhatsApp not available");
+      return;
+    }
+    const msg = `Hello 👋
+I want a custom sketch from Student Art Hub.
+
+🎨 Sketch: ${title}
+💰 Price: ₹${price}
+
+Please tell me next steps.`;
+    window.open(
+      `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(msg)}`
+    );
+  });
+};
+
+</script>
+</body>
+</html>
