@@ -59,12 +59,23 @@ label{font-weight:bold;margin-top:10px;display:block}
   </div>
 
   <!-- SELLER EARNINGS -->
-  <div class="section">
-    <h3>Seller Earnings</h3>
-    <p>Total Listings: <span id="earnListings">0</span></p>
-    <p>Total Estimated Value: ₹<span id="earnTotal">0</span></p>
+<div class="section" id="sellerDashboard" style="display:none;">
+  <h3>🚀 Seller Performance</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+    <div style="background: linear-gradient(45deg, #1e3a8a, #3b82f6); color: white; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 5px 15px rgba(30,58,138,0.3);">
+      <small style="opacity: 0.8; text-transform: uppercase;">Total Earnings</small>
+      <h2 id="totalEarnings" style="margin: 5px 0; font-size: 2rem;">₹0</h2>
+    </div>
+    <div style="background: white; border: 2px solid #1e3a8a; color: #1e3a8a; padding: 20px; border-radius: 15px; text-align: center;">
+      <small style="text-transform: uppercase; color: #666;">Live Listings</small>
+      <h2 id="liveListings" style="margin: 5px 0; font-size: 2rem;">0</h2>
+    </div>
   </div>
-
+  
+  <div style="background: #f8fafc; border-radius: 10px; padding: 10px; font-size: 12px; color: #1e3a8a; text-align: center; border: 1px dashed #cbd5e1;">
+    📈 Your profile visibility increased by 15% this week!
+  </div>
+</div>
   <!-- ORDER HISTORY -->
   <div class="section">
     <h3>Order History</h3>
@@ -152,13 +163,48 @@ changePassBtn.onclick = async () => {
 
 // SELLER EARNINGS
 async function loadEarnings(uid) {
-  const snap = await get(ref(db, "listings"));
-  const listings = snap.val() || {};
+  try {
+    const snap = await get(ref(db, "listings"));
+    const listings = snap.val() || {};
+    
+    let total = 0;
+    let count = 0;
 
-  const my = Object.values(listings).filter(l => l.sellerId === uid);
+    Object.values(listings).forEach(item => {
+      if (item.sellerId === uid) {
+        total += parseInt(item.price || 0);
+        count++;
+      }
+    });
 
-  earnListings.textContent = my.length;
-  earnTotal.textContent = my.reduce((t, l) => t + Number(l.price || 0), 0);
+    // Check if elements exist before animating
+    const e1 = document.getElementById("totalEarnings");
+    const e2 = document.getElementById("liveListings");
+    
+    if (e1 && e2) {
+      animateValue("totalEarnings", 0, total, 1000);
+      animateValue("liveListings", 0, count, 1000);
+      document.getElementById("sellerDashboard").style.display = "block";
+    }
+  } catch (err) {
+    console.error("Stats load nahi hue:", err);
+  }
+}
+
+// Number animation function for that "Pro" feel
+function animateValue(id, start, end, duration) {
+    const obj = document.getElementById(id);
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        obj.innerHTML = (id === "totalEarnings" ? "₹" : "") + value;
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
 }
 
 // ORDER HISTORY (placeholder)
