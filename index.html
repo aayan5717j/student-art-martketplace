@@ -330,6 +330,29 @@
       display: inline-block;
       margin-bottom: 10px;
     }
+
+    #mobileMenuBtn {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background: #1e3a8a;
+        margin-top: 10px;
+      }
+
+      nav a {
+        padding: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      #mobileMenuBtn {
+        display: block;
+      }
+    }
   </style>
 
 </head>
@@ -340,13 +363,17 @@
   <header>
 
     <h2>Student Art Hub</h2>
+    <button id="mobileMenuBtn" class="menu-btn">☰</button>
 
-    <nav>
+    <nav id="mainNav">
+
       <a href="index.html">Home</a>
       <a href="art.html">Art Showcase</a>
       <a href="books.html">Book Exchange</a>
       <a href="sketches.html">Custom Sketches</a>
       <a href="notes.html">Handwritten Notes</a>
+      <a href="buyer-dashboard.html" id="buyerNav" style="display:none">My Orders</a>
+
       <a href="donations.html">Donations</a>
     </nav>
 
@@ -503,6 +530,8 @@
         <button id="browseBtn">Browse</button>
         <button id="profileBtn">My Profile</button>
         <button id="donateBtnDash">Donate</button>
+        <button id="buyerDashBtn">My Orders</button>
+
       </div>
 
 
@@ -737,6 +766,15 @@
 
   <!-- ================= SCRIPT ================= -->
   <script type="module">
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mainNav = document.getElementById("mainNav");
+
+    if (mobileMenuBtn) {
+      mobileMenuBtn.onclick = () => {
+        mainNav.style.display =
+          mainNav.style.display === "flex" ? "none" : "flex";
+      };
+    }
 
     /* --------------  FIREBASE IMPORTS -------------- */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
@@ -1061,6 +1099,17 @@
         // ✅ FIX: agar naam pehle se hai to modal skip
         if (user.name) {
           currentUserRole = user.role;
+          // ===== BUYER DASHBOARD VISIBILITY =====
+          const buyerBtn = document.getElementById("buyerDashBtn");
+          const buyerNav = document.getElementById("buyerNav");
+
+          if (user.role === "buyer") {
+            if (buyerBtn) buyerBtn.style.display = "inline-block";
+            if (buyerNav) buyerNav.style.display = "inline-block";
+          } else {
+            if (buyerBtn) buyerBtn.style.display = "none";
+            if (buyerNav) buyerNav.style.display = "none";
+          }
 
           userInfo.textContent = `Hello, ${user.name}! Role: ${user.role}`;
 
@@ -1143,72 +1192,72 @@
     =================================================== */
     addBtn.onclick = async () => {
 
-  if (currentUserRole !== "seller")
-    return alert("Only sellers can upload listings.");
+      if (currentUserRole !== "seller")
+        return alert("Only sellers can upload listings.");
 
-  if (!titleInput.value || !priceInput.value || !categoryInput.value)
-    return uploadMsg.textContent = "Saare fields fill karo!";
+      if (!titleInput.value || !priceInput.value || !categoryInput.value)
+        return uploadMsg.textContent = "Saare fields fill karo!";
 
-  loadingUpload.style.display = "block";
+      loadingUpload.style.display = "block";
 
-  const uid = auth.currentUser.uid;
+      const uid = auth.currentUser.uid;
 
-  // 📍 LOCATION
-  let fullLocation = areaInput.value || "";
-  if (streetInput.value) fullLocation += ", " + streetInput.value;
-  if (pincodeInput.value) fullLocation += " - " + pincodeInput.value;
+      // 📍 LOCATION
+      let fullLocation = areaInput.value || "";
+      if (streetInput.value) fullLocation += ", " + streetInput.value;
+      if (pincodeInput.value) fullLocation += " - " + pincodeInput.value;
 
-  // 📸 IMAGE UPLOAD (CLOUDINARY)
-  let imageUrl = null;
-  const file = imageInput.files[0];
+      // 📸 IMAGE UPLOAD (CLOUDINARY)
+      let imageUrl = null;
+      const file = imageInput.files[0];
 
-  if (file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "student_art_hub");
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "student_art_hub");
 
-    try {
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/dmq5tdywr/image/upload",
-        { method: "POST", body: formData }
-      );
-      const data = await res.json();
-      imageUrl = data.secure_url;
-    } catch (err) {
-      uploadMsg.textContent = "Image upload failed!";
+        try {
+          const res = await fetch(
+            "https://api.cloudinary.com/v1_1/dmq5tdywr/image/upload",
+            { method: "POST", body: formData }
+          );
+          const data = await res.json();
+          imageUrl = data.secure_url;
+        } catch (err) {
+          uploadMsg.textContent = "Image upload failed!";
+          loadingUpload.style.display = "none";
+          return;
+        }
+      }
+
+      const newRef = push(ref(db, "listings"));
+
+      await set(newRef, {
+        id: newRef.key,
+        sellerId: uid,
+        title: titleInput.value,
+        price: priceInput.value,
+        category: categoryInput.value,
+        class: classInput.value || null,
+        subject: subjectInput.value || null,
+        board: boardInput.value || null,
+        location: fullLocation || "Nearby Area",
+        imageUrl: imageUrl || null,
+        timestamp: Date.now()
+      });
+
+      uploadMsg.textContent = "Listing added successfully!";
       loadingUpload.style.display = "none";
-      return;
-    }
-  }
 
-  const newRef = push(ref(db, "listings"));
+      titleInput.value =
+        priceInput.value =
+        classInput.value =
+        subjectInput.value =
+        boardInput.value = "";
 
-  await set(newRef, {
-    id: newRef.key,
-    sellerId: uid,
-    title: titleInput.value,
-    price: priceInput.value,
-    category: categoryInput.value,
-    class: classInput.value || null,
-    subject: subjectInput.value || null,
-    board: boardInput.value || null,
-    location: fullLocation || "Nearby Area",
-    imageUrl: imageUrl || null,
-    timestamp: Date.now()
-  });
-
-  uploadMsg.textContent = "Listing added successfully!";
-  loadingUpload.style.display = "none";
-
-  titleInput.value =
-  priceInput.value =
-  classInput.value =
-  subjectInput.value =
-  boardInput.value = "";
-
-  imageInput.value = "";
-  categoryInput.value = "";
-};
+      imageInput.value = "";
+      categoryInput.value = "";
+    };
 
 
 
@@ -1223,6 +1272,12 @@
       dashboard.style.display = "none";
       authSection.style.display = "block";
       userMenu.style.display = "none";
+      // hide buyer links on logout
+      const buyerBtn = document.getElementById("buyerDashBtn");
+      const buyerNav = document.getElementById("buyerNav");
+
+      if (buyerBtn) buyerBtn.style.display = "none";
+      if (buyerNav) buyerNav.style.display = "none";
 
       authMsg.textContent = "Logged out!";
     };
@@ -1254,37 +1309,38 @@
         const productContainer = document.getElementById("productContainer");
 
         // Yahan hum listings ko map kar rahe hain
-        productContainer.innerHTML = Object.values(data).map(item => `
-      <div class="card" style="text-align: left; padding: 15px;">
-        <img src="${item.imageUrl || 'https://via.placeholder.com/300?text=Student+Item'}">
+        productContainer.innerHTML = Object.values(data)
+          .filter(item => item.category !== "customSketch") // ✅ MAIN FIX
+          .map(item => `
+    <div class="card" style="text-align: left; padding: 15px;">
+      <img src="${item.imageUrl || 'https://via.placeholder.com/300?text=Student+Item'}">
 
-        <div style="margin-top: 10px;">
-          <span class="payment-badge" style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:bold;">
-            Cash on Delivery / UPI
-          </span>
-          
-          <h4 style="margin: 5px 0;">${item.title}</h4>
-          
-          <div style="color: #f59e0b; margin-bottom: 5px; font-size: 14px;">
-            ${generateStars(item.rating || 4)} 
-            <span style="color: #888; font-size: 12px;">(4.5/5)</span>
-          </div>
+      <div style="margin-top: 10px;">
+        <span class="payment-badge">
+          Cash on Delivery / UPI
+        </span>
 
-          <p style="font-size: 18px; font-weight: bold; color: #1e3a8a; margin: 5px 0;">
-            ₹${item.price}
-          </p>
-          <p style="font-size:12px; color:#555; margin:2px 0;">
-  📍 Location: ${item.location || "Nearby Area"}
-</p>
+        <h4>${item.title}</h4>
 
-          
-          <button onclick="contactSeller('${item.sellerId}', '${item.title}', '${item.price}')">
-  Buy Now
-</button>
-
+        <div style="color: #f59e0b;">
+          ${generateStars(item.rating || 4)}
+          <span style="color:#888;font-size:12px">(4.5/5)</span>
         </div>
+
+        <p style="font-size:18px;font-weight:bold;color:#1e3a8a">
+          ₹${item.price}
+        </p>
+
+        <p style="font-size:12px;color:#555">
+          📍 ${item.location || "Nearby Area"}
+        </p>
+
+        <button onclick="contactSeller('${item.sellerId}', '${item.title}', '${item.price}')">
+          Buy Now
+        </button>
       </div>
-    `).join('');
+    </div>
+  `).join("");
       });
     }
 
@@ -1352,6 +1408,8 @@ Thank you 🙂`;
         const listings = snap.val() || {};
 
         const filtered = Object.values(listings).filter(l =>
+          l.category !== "customSketch" &&
+
           (l.title || "").toLowerCase().includes(q) ||
           (l.category || "").toLowerCase().includes(q) ||
           (l.class || "").toLowerCase().includes(q) ||
@@ -1449,6 +1507,18 @@ Thank you 🙂`;
         window.location.href = "profile.html";
       };
     }
+    // 3.5 Buyer Dashboard Button
+    const buyerBtn = document.getElementById("buyerDashBtn");
+    if (buyerBtn) {
+      buyerBtn.onclick = () => {
+        if (!auth.currentUser) {
+          alert("Please login first");
+          return;
+        }
+        window.location.href = "buyer-dashboard.html";
+      };
+    }
+
 
     // 4. Donate Button
     const dBtnDash = document.getElementById("donateBtnDash");
@@ -1492,6 +1562,8 @@ Thank you 🙂`;
         document.getElementById("loader").style.display = "none";
 
         const filtered = Object.values(listings).filter(l => {
+          if (l.category === "customSketch") return false;
+
           const categoryMatch = !selectedCategory || l.category === selectedCategory;
           const classMatch = !selectedClass || String(l.class) === selectedClass;
           return categoryMatch && classMatch;
