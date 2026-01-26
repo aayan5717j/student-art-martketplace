@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Buyer Dashboard - Student Art Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{margin:0;font-family:Arial;background:#f3f4f6}
+header{background:#1e3a8a;color:#fff;padding:15px}
+.container{max-width:1000px;margin:auto;padding:16px}
+.card{background:#fff;padding:15px;border-radius:10px;margin-bottom:12px}
+button{background:#1e3a8a;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
+.small{font-size:13px;color:#555}
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  align-items:center;
+  justify-content:center;
+}
+.box{background:#fff;padding:20px;border-radius:10px}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>🧑 Buyer Dashboard</h2>
+</header>
+
+<div class="container">
+  <h3>My Custom Orders</h3>
+  <div id="ordersBox"></div>
+</div>
+
+<!-- ⭐ RATING MODAL -->
+<div id="ratingModal" class="modal">
+  <div class="box">
+    <h3>Rate Artist ⭐</h3>
+    <div style="font-size:26px">
+      <span onclick="rateArtist(1)">⭐</span>
+      <span onclick="rateArtist(2)">⭐</span>
+      <span onclick="rateArtist(3)">⭐</span>
+      <span onclick="rateArtist(4)">⭐</span>
+      <span onclick="rateArtist(5)">⭐</span>
+    </div>
+    <br>
+    <button onclick="closeRating()">Cancel</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from
+"https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getDatabase, ref, onValue, push, set, update } from
+"https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+  authDomain:"art-hub-77eb1.firebaseapp.com",
+  databaseURL:"https://art-hub-77eb1-default-rtdb.firebaseio.com",
+  projectId:"art-hub-77eb1"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let currentArtistId = null;
+let currentOrderId = null;
+
+/* ===== LOAD BUYER ORDERS ===== */
+onAuthStateChanged(auth, user => {
+  if(!user){
+    alert("Please login first");
+    return;
+  }
+
+  onValue(ref(db,"customOrders"), snap => {
+    const all = snap.val() || {};
+    const myOrders = Object.values(all).filter(o =>
+      o.buyerId === user.uid
+    );
+
+    const box = document.getElementById("ordersBox");
+
+    if(!myOrders.length){
+      box.innerHTML = "<p class='small'>No orders yet.</p>";
+      return;
+    }
+
+    box.innerHTML = myOrders.map(o => `
+      <div class="card">
+        <p><b>Size:</b> ${o.size}</p>
+        <p><b>Status:</b> ${o.status}</p>
+
+        ${
+          o.status === "completed" && !o.rated
+          ? `<button onclick="openRating('${o.id}','${o.artistId}')">
+               Rate Artist
+             </button>`
+          : ""
+        }
+      </div>
+    `).join("");
+  });
+});
+
+/* ===== RATING LOGIC ===== */
+window.openRating = (orderId, artistId) => {
+  currentOrderId = orderId;
+  currentArtistId = artistId;
+  document.getElementById("ratingModal").style.display = "flex";
+};
+
+window.closeRating = () => {
+  document.getElementById("ratingModal").style.display = "none";
+};
+
+window.rateArtist = async (stars) => {
+  const r = push(ref(db,"ratings/"+currentArtistId));
+  await set(r,{
+    buyerId: auth.currentUser.uid,
+    stars: stars,
+    time: Date.now()
+  });
+
+  await update(
+    ref(db,"customOrders/"+currentOrderId),
+    { rated: true }
+  );
+
+  alert("Thanks for rating ⭐");
+  closeRating();
+};
+</script>
+
+</body>
+</html>
