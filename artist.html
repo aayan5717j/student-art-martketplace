@@ -8,14 +8,25 @@
 <style>
 body{margin:0;font-family:Arial;background:#f3f4f6}
 header{background:#1e3a8a;color:#fff;padding:15px}
-.container{max-width:1100px;margin:auto;padding:16px}
-.profile{background:#fff;padding:16px;border-radius:10px;margin-bottom:20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px}
-.card{background:#fff;border-radius:10px;padding:12px}
-.card img{width:100%;height:180px;object-fit:cover;border-radius:8px}
-button{background:#1e3a8a;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
+.container{max-width:1000px;margin:auto;padding:16px}
+.profile,.box{background:#fff;padding:16px;border-radius:10px;margin-bottom:20px}
+button{background:#1e3a8a;color:#fff;border:none;padding:10px 14px;border-radius:6px;cursor:pointer}
 .small{font-size:13px;color:#555}
 .rating{color:#f59e0b;font-weight:bold}
+textarea,select{width:100%;padding:8px;margin-top:6px}
+.modal{
+  display:none;
+  position:fixed;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+
 </style>
 </head>
 
@@ -36,34 +47,75 @@ button{background:#1e3a8a;color:#fff;border:none;padding:8px 12px;border-radius:
   <p id="artistRating" class="rating">⭐ No ratings yet</p>
 </div>
 
-<!-- ===== SKETCH LIST ===== -->
-<h3>Available Custom Sketches</h3>
-<div id="sketchGrid" class="grid"></div>
+<!-- ===== REQUEST FORM ===== -->
+<div class="box">
+  <h3>Request a Custom Sketch ✍️</h3>
+
+  <label>Sketch Size</label>
+  <select id="size">
+    <option value="A4">A4 Sketch</option>
+    <option value="A3">A3 Sketch</option>
+  </select>
+
+  <br><br>
+
+  <label>Describe your sketch</label>
+  <textarea id="details"
+    placeholder="Portrait, pencil style, reference photo, delivery time, etc."
+    rows="4"></textarea>
+
+  <br><br>
+
+  <button onclick="requestSketch()">Send Request</button>
+</div>
 
 </div>
+<!-- ===== SELLER ORDERS (ARTIST ONLY) ===== -->
+<div id="sellerOrdersBox" class="box" style="display:none">
+  <h3>Incoming Orders 📦</h3>
+  <div id="sellerOrders"></div>
+</div>
+<!-- ===== BUYER RATING POPUP ===== -->
+<div id="ratingModal" class="modal">
+  <div class="box">
+    <h3>Rate Artist ⭐</h3>
+    <p class="small">Please rate your experience</p>
+
+    <div style="font-size:26px">
+      <span onclick="rateArtist(1)">⭐</span>
+      <span onclick="rateArtist(2)">⭐</span>
+      <span onclick="rateArtist(3)">⭐</span>
+      <span onclick="rateArtist(4)">⭐</span>
+      <span onclick="rateArtist(5)">⭐</span>
+    </div>
+
+    <br>
+    <button onclick="closeRating()">Cancel</button>
+  </div>
+</div>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getDatabase, ref, get, onValue, push, set } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
+import { getDatabase, ref, get, onValue, push, set } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+let currentOrderForRating = null;
+
+/* ===== FIREBASE ===== */
 const firebaseConfig={
   apiKey:"AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
   authDomain:"art-hub-77eb1.firebaseapp.com",
   databaseURL:"https://art-hub-77eb1-default-rtdb.firebaseio.com",
-  projectId:"art-hub-77eb1",
-  storageBucket:"art-hub-77eb1.appspot.com",
-  messagingSenderId:"1097170910592",
-  appId:"1:1097170910592:web:8590c10f6d0662d6881565"
+  projectId:"art-hub-77eb1"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-/* =====================
-   GET ARTIST ID
-===================== */
+/* ===== GET ARTIST ID ===== */
 const params = new URLSearchParams(window.location.search);
 const artistId = params.get("id");
 if(!artistId){
@@ -71,104 +123,145 @@ if(!artistId){
   throw new Error("No artist id");
 }
 
-/* =====================
-   LOAD ARTIST INFO
-===================== */
+/* ===== LOAD ARTIST INFO ===== */
 get(ref(db,"users/"+artistId)).then(snap=>{
-  const u=snap.val();
+  const u = snap.val();
   if(u){
     document.getElementById("artistName").textContent = u.name || "Artist";
   }
 });
 
-/* =====================
-   LOAD RATINGS
-===================== */
+/* ===== LOAD RATINGS ===== */
 onValue(ref(db,"ratings/"+artistId),snap=>{
-  const data=snap.val();
+  const data = snap.val();
   if(!data) return;
-  const arr=Object.values(data);
-  const avg=(arr.reduce((s,r)=>s+r.stars,0)/arr.length).toFixed(1);
+
+  const arr = Object.values(data);
+  const avg = (arr.reduce((s,r)=>s+r.stars,0)/arr.length).toFixed(1);
+
   document.getElementById("artistRating").textContent =
     `⭐ ${avg} (${arr.length} reviews)`;
 });
 
-/* =====================
-   LOAD SKETCHES
-===================== */
-onValue(ref(db,"listings"),snap=>{
-  const all=snap.val()||{};
-  const list=Object.values(all).filter(
-    l=>l.category==="sketch" && l.sellerId===artistId
-  );
+/* ===== REQUEST SKETCH (MAIN LOGIC) ===== */
+window.requestSketch = async () => {
 
-  const box=document.getElementById("sketchGrid");
-
-  if(!list.length){
-    box.innerHTML="<p>No sketches uploaded.</p>";
-    return;
-  }
-
-  box.innerHTML = list.map(l=>`
-    <div class="card">
-      <img src="${l.imageUrl}">
-      <h4>${l.title}</h4>
-      <p class="small">${l.description||""}</p>
-      <p><b>₹${l.price}</b></p>
-      <button onclick="requestSketch('${l.title}','${l.price}')">
-        Request Sketch
-      </button>
-    </div>
-  `).join("");
-});
-
-/* =====================
-   REQUEST SKETCH
-===================== */
-window.requestSketch = async (title, price)=>{
   if(!auth.currentUser){
     alert("Please login first");
     return;
   }
 
-  const ok = confirm(
-    "Payment via UPI / Cash on Meet\n\nClick OK to continue to WhatsApp"
-  );
-  if(!ok) return;
+  const size = document.getElementById("size").value;
+  const details = document.getElementById("details").value.trim();
 
-  // CREATE ORDER (rating ke liye base)
-  const r = push(ref(db,"orders"));
+  if(!details){
+    alert("Please describe your sketch");
+    return;
+  }
+
+  // SAVE ORDER
+  const r = push(ref(db,"customOrders"));
   await set(r,{
-    id:r.key,
-    buyerId:auth.currentUser.uid,
-    sellerId:artistId,
-    sketchTitle:title,
-    price:price,
-    status:"pending",
-    rated:false,
-    time:Date.now()
+    id: r.key,
+    buyerId: auth.currentUser.uid,
+    artistId: artistId,
+    size: size,
+    details: details,
+    status: "pending",
+    time: Date.now()
   });
 
   // OPEN WHATSAPP
   get(ref(db,"users/"+artistId)).then(snap=>{
-    const s=snap.val();
+    const s = snap.val();
     if(!s?.whatsapp){
-      alert("Seller WhatsApp not available");
+      alert("Artist WhatsApp not available");
       return;
     }
+
+
     const msg = `Hello 👋
 I want a custom sketch from Student Art Hub.
 
-🎨 Sketch: ${title}
-💰 Price: ₹${price}
+🎨 Size: ${size}
+📝 Details: ${details}
 
-Please tell me next steps.`;
+Please let me know next steps.`;
+
     window.open(
       `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(msg)}`
     );
   });
 };
+/* ===== SHOW SELLER ORDERS (ARTIST ONLY) ===== */
+onAuthStateChanged(auth, user => {
+  if (user && user.uid === artistId) {
+    document.getElementById("sellerOrdersBox").style.display = "block";
+
+    onValue(ref(db,"customOrders"), snap => {
+      const all = snap.val() || {};
+      const my = Object.values(all).filter(o =>
+        o.artistId === artistId && o.status === "pending"
+      );
+
+      const box = document.getElementById("sellerOrders");
+
+      if (!my.length) {
+        box.innerHTML = "<p class='small'>No pending orders</p>";
+        return;
+      }
+
+      box.innerHTML = my.map(o => `
+        <div class="profile">
+          <p><b>Size:</b> ${o.size}</p>
+          <p><b>Details:</b> ${o.details}</p>
+          <button onclick="markCompleted('${o.id}')">
+            Mark Completed
+          </button>
+        </div>
+      `).join("");
+    });
+  }
+});
+
+window.markCompleted = async (orderId) => {
+  await set(ref(db,"customOrders/"+orderId+"/status"),"completed");
+  alert("Order marked as completed ✅");
+};
+
+/* ===== OPEN RATING POPUP (BUYER) ===== */
+window.openRating = (orderId) => {
+  currentOrderForRating = orderId;
+  document.getElementById("ratingModal").style.display = "flex";
+};
+
+/* ===== CLOSE POPUP ===== */
+window.closeRating = () => {
+  document.getElementById("ratingModal").style.display = "none";
+};
+
+/* ===== SAVE RATING ===== */
+window.rateArtist = async (stars) => {
+  if (!auth.currentUser) return;
+
+  const r = push(ref(db,"ratings/"+artistId));
+  await set(r,{
+    buyerId: auth.currentUser.uid,
+    stars: stars,
+    time: Date.now()
+  });
+
+  // mark order as rated
+  await set(
+    ref(db,"customOrders/"+currentOrderForRating+"/rated"),
+    true
+  );
+
+  alert("Thanks for rating ⭐");
+  closeRating();
+};
 
 </script>
+
 </body>
 </html>
