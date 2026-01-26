@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1507,17 +1508,13 @@ Thank you 🙂`;
         window.location.href = "profile.html";
       };
     }
-    // 3.5 Buyer Dashboard Button
-    const buyerBtn = document.getElementById("buyerDashBtn");
-    if (buyerBtn) {
-      buyerBtn.onclick = () => {
-        if (!auth.currentUser) {
-          alert("Please login first");
-          return;
-        }
-        window.location.href = "buyer-dashboard.html";
-      };
-    }
+// ✅ SIRF PAGE OPEN KAR
+const buyerBtn = document.getElementById("buyerDashBtn");
+if (buyerBtn) {
+  buyerBtn.onclick = () => {
+    window.location.href = "buyer-dashboard.html";
+  };
+}
 
 
     // 4. Donate Button
