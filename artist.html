@@ -168,7 +168,9 @@ window.requestSketch = async () => {
     size: size,
     details: details,
     status: "pending",
-    time: Date.now()
+rated: false,
+time: Date.now()
+
   });
 
   // OPEN WHATSAPP
@@ -226,14 +228,21 @@ onAuthStateChanged(auth, user => {
 
 window.markCompleted = async (orderId) => {
   await set(ref(db,"customOrders/"+orderId+"/status"),"completed");
+  
+
   alert("Order marked as completed ✅");
 };
 
+
 /* ===== OPEN RATING POPUP (BUYER) ===== */
 window.openRating = (orderId) => {
+  // artist khud rate na kare
+  if (auth.currentUser?.uid === artistId) return;
+
   currentOrderForRating = orderId;
   document.getElementById("ratingModal").style.display = "flex";
 };
+
 
 /* ===== CLOSE POPUP ===== */
 window.closeRating = () => {
