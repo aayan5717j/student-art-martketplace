@@ -52,7 +52,7 @@ button{background:#1e3a8a;color:#fff;border:none;padding:8px 12px;border-radius:
 </div>
 
 <script type="module">
-import { initializeApp } from
+import 
 "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from
 "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
@@ -72,23 +72,16 @@ const db = getDatabase(app);
 
 let currentArtistId = null;
 let currentOrderId = null;
-
-/* ===== LOAD BUYER ORDERS ===== */
-onAuthStateChanged(auth, user => {
-  if(!user){
-    alert("Please login first");
-    return;
-  }
-
-  onValue(ref(db,"customOrders"), snap => {
+function loadBuyerOrders(uid) {
+  onValue(ref(db, "customOrders"), (snap) => {
     const all = snap.val() || {};
     const myOrders = Object.values(all).filter(o =>
-      o.buyerId === user.uid
+      o.buyerId === uid
     );
 
     const box = document.getElementById("ordersBox");
 
-    if(!myOrders.length){
+    if (!myOrders.length) {
       box.innerHTML = "<p class='small'>No orders yet.</p>";
       return;
     }
@@ -100,16 +93,31 @@ onAuthStateChanged(auth, user => {
 
         ${
           o.status === "completed" && !o.rated
-          ? `<button onclick="openRating('${o.id}','${o.artistId}')">
-               Rate Artist
-             </button>`
-          : ""
+            ? `<button onclick="openRating('${o.id}','${o.artistId}')">
+                 Rate Artist
+               </button>`
+            : ""
         }
       </div>
     `).join("");
   });
+}
+
+/* ===== LOAD BUYER ORDERS ===== */
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    // ❌ alert mat dikha
+    // ✅ silently redirect
+    window.location.href = "index.html";
+    return;
+  }
+
+  // ✅ user fully logged in
+  loadBuyerOrders(user.uid);
 });
 
+
+ 
 /* ===== RATING LOGIC ===== */
 window.openRating = (orderId, artistId) => {
   currentOrderId = orderId;
