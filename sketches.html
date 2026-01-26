@@ -76,12 +76,29 @@ onValue(ref(db, "users"), snap => {
       card.innerHTML = `
         <img src="https://via.placeholder.com/300?text=Artist" />
         <h3>${user.name || "Unnamed Artist"}</h3>
-        <p class="small">⭐ 4.5 / 5</p>
+        <p class="small rating">⭐ Loading...</p>
+
         <p class="small">Custom Sketch Artist</p>
         <button onclick="openArtist('${uid}')">
           View Artist
         </button>
       `;
+const ratingRef = ref(db, "ratings/" + uid);
+
+onValue(ratingRef, snap => {
+  let ratingText = "⭐ No ratings";
+
+  if (snap.exists()) {
+    const arr = Object.values(snap.val());
+    const avg = (
+      arr.reduce((s, r) => s + r.stars, 0) / arr.length
+    ).toFixed(1);
+
+    ratingText = `⭐ ${avg} / 5 (${arr.length})`;
+  }
+
+  card.querySelector(".rating").textContent = ratingText;
+});
 
       artistList.appendChild(card); 
     }
