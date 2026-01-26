@@ -34,129 +34,67 @@
 
 <main class="container">
   <section>
-    <h2>Custom Sketches</h2>
-    <p class="small">Buy custom sketches from student artists — request a sketch, message the artist, and rate their work.</p>
+<h2>Custom Sketch Artists 🎨</h2>
+<p class="small">
+  Choose an artist and request a custom sketch.
+</p>
 
-    <!-- Upload (visible when logged in) -->
-    <div id="uploadSection" style="display:none;margin-top:12px;">
-      <h3>Upload a Sketch Offer</h3>
-      <input id="sketchTitle" placeholder="Title (e.g. Portrait Sketch)"><br><br>
-      <textarea id="sketchDesc" placeholder="Short description (size, style, delivery time)"></textarea><br><br>
-      <label>Price A4 (₹)</label>
-      <input type="number" id="priceA4" min="0" placeholder="300"><br><br>
-      <label>Price A3 (₹)</label>
-      <input type="number" id="priceA3" min="0" placeholder="500"><br><br>
-      <input type="file" id="sketchImage" accept="image/*"><br><br>
-      <button id="uploadSketchBtn">Upload Sketch Offer</button>
-      <div id="uploadMsg" class="small" style="margin-top:8px;color:green"></div>
-    </div>
+<div id="artistList" class="grid"></div>
 
-    <!-- Seller panel (orders) -->
-    <div id="sellerPanel" class="seller-panel" style="display:none;">
-      <h3>Your Seller Dashboard</h3>
-      <div id="yourSketches" style="margin-bottom:12px"></div>
-      <h4>Incoming Orders</h4>
-      <div id="sellerOrders"></div>
-    </div>
-
-    <hr>
-
-    <!-- Gallery -->
-    <h3>Available Sketches</h3>
-    <div style="margin-bottom:8px;">
-      <input id="searchInput" placeholder="Search by title or description">
-      <button id="searchBtn">Search</button>
-    </div>
-    <div id="gallery" class="grid"></div>
-  </section>
-</main>
-
-<!-- Request Modal -->
-<div id="requestModal" class="modal">
-  <div class="box">
-    <h3>Request Sketch</h3>
-    <div id="modalSketchInfo"></div>
-    <label>Your name</label><br>
-    <input id="reqName" placeholder="Your name"><br><br>
-    <label>Your WhatsApp number (with country code, e.g. +91...) *</label><br>
-    <input id="reqPhone" placeholder="+91xxxxxxxxxx"><br><br>
-    <label>Extra notes / reference</label><br>
-    <textarea id="reqNotes" placeholder="Anything to add..."></textarea><br><br>
-    <button id="sendRequestBtn">Send Request (Save + WhatsApp)</button>
-    <button id="closeModalBtn" style="margin-left:8px">Cancel</button>
-    <div id="reqMsg" class="small" style="margin-top:8px;color:green"></div>
-  </div>
-</div>
-
+    
 <footer style="margin-top:20px">
   <div class="container"><p>© 2025 Student Art Hub</p></div>
 </footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
 
-
-const firebaseConfig={apiKey:"AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",authDomain:"art-hub-77eb1.firebaseapp.com",databaseURL:"https://art-hub-77eb1-default-rtdb.firebaseio.com",projectId:"art-hub-77eb1",storageBucket:"art-hub-77eb1.appspot.com",messagingSenderId:"1097170910592",appId:"1:1097170910592:web:8590c10f6d0662d6881565"};
-
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getDatabase(app);
-
-
-onAuthStateChanged(auth,u=>{
-  uploadSection.style.display = u ? "block":"none";
-  loadSketches();
-});
-uploadSketchBtn.onclick = async ()=>{
-
-  const t = sketchTitle.value.trim();
-  const d = sketchDesc.value.trim();
-  const p = priceA4.value.trim();
-  const f = sketchImage.files[0];
-
-  if(!t || !d || !p || !f){
-    alert("Fill all fields");
-    return;
-  }
-
-  const uid = auth.currentUser.uid;
-
-  // 🔥 CLOUDINARY UPLOAD (NO CORS ISSUE)
-  let imageUrl = "";
-
-  const formData = new FormData();
-  formData.append("file", f);
-  formData.append("upload_preset", "student_art_hub"); // 👈 tera preset
-
-  try{
-    const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dmq5tdywr/image/upload",
-      { method: "POST", body: formData }
-    );
-    const data = await res.json();
-    imageUrl = data.secure_url;
-  }catch(err){
-    alert("Image upload failed");
-    return;
-  }
-
-  const r = push(ref(db,"listings"));
-  await set(r,{
-    id: r.key,
-    sellerId: uid,
-    title: t,
-    description: d,
-    price: p,
-    imageUrl: imageUrl,
-    category: "sketch",
-    timestamp: Date.now()
-  });
-
-  alert("Sketch uploaded successfully 🎨");
+const firebaseConfig = {
+  apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+  authDomain: "art-hub-77eb1.firebaseapp.com",
+  databaseURL: "https://art-hub-77eb1-default-rtdb.firebaseio.com",
+  projectId: "art-hub-77eb1"
 };
 
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const artistList = document.getElementById("artistList");
+
+// 🔥 MAIN LOGIC: SELLERS = ARTISTS
+onValue(ref(db, "users"), snap => {
+  const users = snap.val() || {};
+  artistList.innerHTML = "";
+
+  Object.entries(users).forEach(([uid, user]) => {
+    if (user.role === "seller") {
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <img src="https://via.placeholder.com/300?text=Artist" />
+        <h3>${user.name || "Unnamed Artist"}</h3>
+        <p class="small">⭐ 4.5 / 5</p>
+        <p class="small">Custom Sketch Artist</p>
+        <button onclick="openArtist('${uid}')">
+          View Artist
+        </button>
+      `;
+
+      artistList.appendChild(card); 
+    }
+  });
+  if (!artistList.children.length) {
+  artistList.innerHTML = "<p class='small'>No artists available right now.</p>";
+}
+
+});
+
+window.openArtist = (id) => {
+  window.location.href = "artist.html?id=" + id;
+};
 </script>
 
 </body>
