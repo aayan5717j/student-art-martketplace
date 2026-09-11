@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Art Showcase - Student Art Hub</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+
+
+<main class="container">
+<section class="category-page category-quick-view"><div class="section-heading"><div><span class="eyebrow">Student Marketplace</span><h2>Art Marketplace</h2><p>Explore student listings available in this section.</p></div><a class="market-btn" href="category.html?type=art">View all →</a></div><div id="hubCategoryFeed" data-category="art" class="market-grid"></div></section>
+
+<section>
+<h2>Art Showcase</h2>
+<p>Pieces from talented student artists.</p>
+
+<!-- Upload Section -->
+<div id="uploadSection" style="display:none;">
+<h3>Upload Your Artwork</h3>
+<input type="text" id="artTitle" placeholder="Art Title">
+<input type="number" id="artPrice" placeholder="Price (₹)" min="1">
+<textarea id="artDescription" placeholder="Description"></textarea>
+<input type="file" id="fileInput" accept="image/*">
+<button id="uploadBtn">Upload</button>
+</div>
+
+<h3>Gallery</h3>
+<div id="gallery" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+</section>
+</main>
+
+<footer>
+<div class="container"><p>© 2025 Student Art Hub</p></div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+  authDomain: "art-hub-77eb1.firebaseapp.com",
+  projectId: "art-hub-77eb1",
+  storageBucket: "art-hub-77eb1.firebasestorage.app",
+  messagingSenderId: "1097170910592",
+  appId: "1:1097170910592:web:efafe19f6fc24f40881565"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const uploadSection = document.getElementById("uploadSection");
+const uploadBtn = document.getElementById("uploadBtn");
+const gallery = document.getElementById("gallery");
+
+// Show upload section only to logged-in users
+onAuthStateChanged(auth, user=>{
+    if(user){
+        uploadSection.style.display="block";
+        loadGallery(); // Load gallery for all users
+    } else {
+        uploadSection.style.display="none";
+        loadGallery();
+    }
+});
+
+// Upload artwork
+uploadBtn.addEventListener("click", async ()=>{
+    const file = document.getElementById("fileInput").files[0];
+    const title = document.getElementById("artTitle").value.trim();
+    const price = parseInt(document.getElementById("artPrice").value);
+    const desc = document.getElementById("artDescription").value.trim();
+
+    if(!file || !title || !price){ alert("Fill all fields and select an image."); return; }
+
+    const fileName = Date.now() + "-" + file.name;
+    const storageRef = ref(storage, "artworks/" + fileName);
+
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+
+    // Save to Firestore
+    await addDoc(collection(db, "artworks"), {
+        title, price, description: desc, imageUrl: url, sellerId: auth.currentUser.uid, createdAt: new Date()
+    });
+
+    alert("Artwork uploaded!");
+    document.getElementById("artTitle").value="";
+    document.getElementById("artPrice").value="";
+    document.getElementById("artDescription").value="";
+    document.getElementById("fileInput").value="";
+    loadGallery();
+});
+
+// Load all artworks
+async function loadGallery(){
+    gallery.innerHTML="";
+    const querySnapshot = await getDocs(collection(db, "artworks"));
+    querySnapshot.forEach(docSnap=>{
+        const art = docSnap.data();
+        const div = document.createElement("div");
+        div.style.border="1px solid #ccc";
+        div.style.padding="10px";
+        div.style.borderRadius="8px";
+        div.style.width="200px";
+        div.innerHTML = `
+            <img src="${art.imageUrl}" width="100%" style="border-radius:8px;"><br>
+            <strong>${art.title}</strong><br>
+            ₹${art.price}<br>
+            <em>${art.description}</em><br><br>
+            <button class="buyBtn">Buy</button>
+        `;
+        div.querySelector(".buyBtn").onclick = ()=>{
+            alert("Razorpay checkout placeholder. Replace with your key later.");
+            // Example Razorpay code placeholder:
+            /*
+            const options = {
+                key: "YOUR_RAZORPAY_KEY",
+                amount: art.price*100,
+                currency: "INR",
+                name: art.title,
+                handler: function(response){
+                    alert("Payment ID: "+response.razorpay_payment_id);
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+            */
+        };
+        gallery.appendChild(div);
+    });
+}
+
+</script>
+<script src="script.js"></script>
+<script type="module" src="category-feed.js"></script>
+<script src="common-nav.js"></script>
+<script src="hub-enhancements.js"></script>
+<script src="marketplace-v3.js"></script>
+</body>
+</html>
