@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="module" src="auth-guard.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Student Art Hub dashboard">
+<title>Dashboard — Student Art Hub</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+<main class="dashboard-page">
+  <a class="dashboard-back" href="home.html">← Back to Home</a>
+
+  <section class="dashboard-hero">
+    <span class="eyebrow">My account</span>
+    <h1 id="dashWelcome">Dashboard</h1>
+    <p id="dashUserInfo">Loading your account...</p>
+  </section>
+
+  <section class="dashboard-stats" aria-label="Dashboard overview">
+    <div class="dashboard-stat"><small>Total marketplace listings</small><strong id="totalListings">0</strong></div>
+    <div class="dashboard-stat"><small>My listings</small><strong id="myListingsCount">0</strong></div>
+    <div class="dashboard-stat"><small>My donations</small><strong id="donationsCount">0</strong></div>
+  </section>
+
+  <div class="dashboard-actions">
+    <button id="showUploadBtn">+ Add Listing</button>
+    <a class="market-btn" href="home.html#productContainer">Browse Marketplace</a>
+    <a class="market-btn" href="profile.html">My Profile</a>
+    <a class="market-btn" href="profile.html#artistSection">🎨 Artist Profile</a>
+    <a class="market-btn" href="donations.html">Donate</a>
+    <a id="ordersBtn" class="market-btn hidden" href="buyer-dashboard.html">My Orders</a>
+  </div>
+
+  <section id="sellerPanel" class="dashboard-panel hidden">
+    <h2>List something new</h2>
+    <p>Share your work with other students. Add the essentials and publish when you are ready.</p>
+    <div class="listing-form">
+      <select id="categoryInput" class="full">
+        <option value="">Choose category</option>
+        <option value="painting">🎨 Painting</option>
+        <option value="sketch">✏️ Sketch</option>
+        <option value="artist">🎨 Artist Showcase</option>
+        <option value="digital">💻 Digital Art</option>
+        <option value="craft">🧵 Craft</option>
+        <option value="photography">📸 Photography</option>
+        <option value="book">📚 Book</option>
+        <option value="notes">📝 Handwritten Notes</option>
+      </select>
+      <input id="titleInput" placeholder="Product title">
+      <input id="priceInput" type="number" min="0" placeholder="Price (₹)">
+      <input id="areaInput" placeholder="Area / Locality">
+      <input id="streetInput" placeholder="Nearby landmark / Gali (optional)">
+      <input id="pincodeInput" placeholder="Pincode (optional)">
+      <select id="classInput">
+        <option value="">Class (optional)</option>
+        <option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option>
+        <option value="4">Class 4</option><option value="5">Class 5</option><option value="6">Class 6</option>
+        <option value="7">Class 7</option><option value="8">Class 8</option><option value="9">Class 9</option>
+        <option value="10">Class 10</option><option value="11">Class 11</option><option value="12">Class 12</option>
+      </select>
+      <div id="notesFields" class="full hidden" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <input id="subjectInput" placeholder="Subject (Notes only)">
+        <input id="boardInput" placeholder="Board (CBSE / State etc.)">
+      </div>
+      <div class="full">
+        <label class="upload-label" for="imageInput">Product image</label>
+        <input id="imageInput" type="file" accept="image/*">
+        <input id="pdfInput" type="file" accept="application/pdf" class="hidden">
+      </div>
+    </div>
+    <div class="upload-actions"><button id="addBtn">Upload Listing</button></div>
+    <div id="uploadMsg" class="status-msg"></div>
+  </section>
+
+  <section id="sellerRequestsPanel" class="dashboard-panel seller-orders-panel hidden">
+    <div class="panel-heading-row">
+      <div>
+        <h2>📝 Student Requests</h2>
+        <p>See what students are looking for and respond when you can help.</p>
+      </div>
+      <span id="openRequestsBadge" class="pending-orders-badge">0 open</span>
+    </div>
+    <div id="sellerRequests" class="seller-orders-list"><div class="dashboard-empty">Loading student requests...</div></div>
+  </section>
+
+  <section id="sellerOrdersPanel" class="dashboard-panel seller-orders-panel hidden">
+    <div class="panel-heading-row">
+      <div>
+        <h2>📦 Incoming Order Requests</h2>
+        <p>Orders sent by buyers for your listings appear here. Accept, reject, or contact the buyer.</p>
+      </div>
+      <span id="pendingOrdersBadge" class="pending-orders-badge">0 pending</span>
+    </div>
+    <div id="sellerOrders" class="seller-orders-list"><div class="dashboard-empty">Loading order requests...</div></div>
+  </section>
+
+  <section class="dashboard-panel">
+    <h2>Recent activity</h2>
+    <p>Keep track of your latest marketplace activity.</p>
+    <div id="recentActivity" class="dashboard-empty">No recent activity yet.</div>
+  </section>
+
+  <section id="myListingsPanel" class="dashboard-panel">
+    <h2>Your listings</h2>
+    <p>Manage the products you have uploaded.</p>
+    <div id="myListings" class="my-listings-grid"><div class="dashboard-empty">Loading...</div></div>
+  </section>
+</main>
+
+<footer><p>© 2025 Student Art Hub — Built by Aayan</p></footer>
+
+<script type="module" src="dashboard.js"></script>
+<script src="hub-enhancements.js"></script>
+<script src="common-nav.js"></script>
+<script src="marketplace-v3.js"></script>
+</body>
+</html>

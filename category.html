@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Student Art Hub — Marketplace</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main class="container category-page">
+<section class="category-hero"><span class="eyebrow">Student Marketplace</span><h1 id="pageTitle">All Student Creations</h1><p id="pageDesc">Books, notes, art and useful student products — all in one place.</p><div class="category-search"><span>⌕</span><input id="categorySearch" placeholder="Search this category..."></div></section>
+<div class="category-tabs"><a href="category.html?type=all">All</a><a href="category.html?type=art">Art</a><a href="category.html?type=book">Books</a><a href="category.html?type=notes">Notes</a></div>
+<section id="hubCategoryFeed" data-category="all" class="market-grid"></section>
+</main><footer><div class="container"><p>© 2026 Student Art Hub — Student Marketplace</p></div></footer>
+<script type="module">
+const p = new URLSearchParams(location.search); const type = p.get("type") || "all";
+const meta={all:["All Student Creations","Books, notes, art and useful student products — all in one place."],art:["Art Marketplace","Paintings, sketches, digital art, crafts and photography."],book:["Books","Books shared and sold by students."],notes:["Handwritten Notes","Subject-wise notes for students."],painting:["Paintings","Original paintings and handmade canvas work."],sketch:["Sketches","Pencil, charcoal and hand-drawn sketches."],digital:["Digital Art","Creative digital artwork made by students."],craft:["Crafts","Handmade student creations and DIY art."],photography:["Photography","Photography and visual stories by students."]};
+const m=meta[type]||meta.all; document.getElementById("pageTitle").textContent=m[0]; document.getElementById("pageDesc").textContent=m[1]; document.getElementById("hubCategoryFeed").dataset.category=type;
+</script><script type="module" src="category-feed.js"></script>
+<script src="common-nav.js"></script>
+<script src="hub-enhancements.js"></script>
+<script src="marketplace-v3.js"></script>
+</body></html>

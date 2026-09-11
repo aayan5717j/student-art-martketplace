@@ -1,0 +1,199 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Student Art Hub account login and signup"><title>Login — Student Art Hub</title><link rel="stylesheet" href="styles.css"><style>
+body.login-page{min-height:100vh;background:#f8f5ef;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;}
+.login-shell{width:min(760px,100%);}
+.login-brand{text-align:center;margin-bottom:18px;}
+.login-brand .mark{display:inline-flex;width:48px;height:48px;border-radius:14px;align-items:center;justify-content:center;background:#c45d3d;color:#fff;font-weight:800;font-size:20px;margin-bottom:8px;}
+.login-brand h1{margin:0;color:#2b2926;font-size:28px;} .login-brand p{margin:6px 0 0;color:#777;}
+#authSection{margin:0 auto!important;max-width:720px;}
+</style></head><body class="login-page"><div class="login-shell"><div class="login-brand"><span class="mark">SA</span><h1>Student Art Hub</h1><p>Student marketplace</p></div><section class="auth-card" id="authSection">
+<div class="auth-heading">
+<span class="eyebrow">Account</span>
+<h2 id="authTitle">Welcome back</h2>
+<p id="authSubtitle">Login to continue to the marketplace.</p>
+</div>
+<div aria-label="Account access" class="auth-switch" role="tablist">
+<button class="auth-tab active" id="loginTab" type="button">Login</button>
+<button class="auth-tab" id="signupTab" type="button">Create account</button>
+</div>
+<!-- LOGIN: only email + password -->
+<div class="auth-form" id="loginAuth">
+<label for="loginEmail">Email address</label>
+<input autocomplete="email" id="loginEmail" placeholder="you@example.com" type="email"/>
+<label for="loginPassword">Password</label>
+<div class="password-field">
+<input autocomplete="current-password" id="loginPassword" placeholder="Enter your password" type="password"/>
+<button class="password-toggle" id="toggleLoginPassword" type="button">Show</button>
+</div>
+<div class="auth-row">
+<label class="check-row"><input checked="" id="rememberMe" type="checkbox"/> Remember me</label>
+<button class="link-btn" id="forgotBtn" type="button">Forgot password?</button>
+</div>
+<button class="auth-primary" id="loginBtn" type="button">Login</button>
+</div>
+<!-- SIGNUP: profile + security details -->
+<div class="auth-form" id="signupAuth" style="display:none">
+<div class="form-grid-2">
+<div>
+<label for="signupName">Full name</label>
+<input autocomplete="name" id="signupName" placeholder="Your name" type="text"/>
+</div>
+<div>
+<label for="signupPhone">Mobile number</label>
+<input autocomplete="tel" id="signupPhone" inputmode="tel" placeholder="10-digit mobile number" type="tel"/>
+</div>
+</div>
+<label for="signupEmail">Email address</label>
+<input autocomplete="email" id="signupEmail" placeholder="you@example.com" type="email"/>
+<label for="signupPassword">Create password</label>
+<div class="password-field">
+<input autocomplete="new-password" id="signupPassword" placeholder="At least 8 characters" type="password"/>
+<button class="password-toggle" id="toggleSignupPassword" type="button">Show</button>
+</div>
+<div class="strength" id="signupPasswordStrength"></div>
+<label for="signupConfirm">Confirm password</label>
+<input autocomplete="new-password" id="signupConfirm" placeholder="Re-enter your password" type="password"/>
+<label for="role">Account type</label>
+<select id="role">
+<option value="buyer">Buyer</option>
+<option value="seller">Seller</option>
+</select>
+<label class="check-row terms-row"><input id="signupTerms" type="checkbox"/> I agree to the Terms &amp; Privacy Policy.</label>
+<button class="auth-primary" id="signupBtn" type="button">Create account</button>
+</div>
+<p class="auth-message" id="authMsg"></p>
+<div class="loading" id="loadingAuth">Loading...</div>
+</section><div id="termsModal" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  z-index:999;
+  justify-content:center;
+  align-items:center;
+">
+<div style="
+    background:#fff;
+    padding:25px;
+    border-radius:10px;
+    width:90%;
+    max-width:600px;
+    max-height:80vh;
+    overflow-y:auto;
+    position:relative;
+    font-size:14px;
+    line-height:1.6;
+  ">
+<button onclick="closeTerms()" style="
+      position:absolute;
+      top:10px;
+      right:10px;
+      background:#dc2626;
+      color:#fff;
+      border:none;
+      padding:5px 10px;
+      border-radius:5px;
+      cursor:pointer;
+    ">X</button>
+<h3>Terms &amp; Conditions</h3>
+<p><b>Last Updated:</b> 2025</p>
+<ul>
+<li>This platform is intended only for students.</li>
+<li>Users must provide accurate and genuine information.</li>
+<li>Sellers cannot purchase their own listings.</li>
+<li>Payments are handled directly between buyers and sellers.</li>
+<li>Student Art Hub is not responsible for payment disputes.</li>
+<li>Illegal or inappropriate content is prohibited.</li>
+</ul>
+<h3>Privacy Policy</h3>
+<ul>
+<li>We collect name, email/phone number, and WhatsApp number.</li>
+<li>Data is used only for authentication and communication.</li>
+<li>All data is securely stored using Firebase.</li>
+<li>User data is never sold or shared.</li>
+</ul>
+<h3>Disclaimer</h3>
+<p>
+          Student Art Hub acts only as a connecting platform.
+          Users interact and transact at their own responsibility.
+        </p>
+</div>
+</div></div><script type="module">
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged, sendPasswordResetEmail, sendEmailVerification,
+  setPersistence, browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+  authDomain:"art-hub-77eb1.firebaseapp.com",
+  databaseURL:"https://art-hub-77eb1-default-rtdb.firebaseio.com",
+  projectId:"art-hub-77eb1",
+  storageBucket:"art-hub-77eb1.firebasestorage.app",
+  messagingSenderId:"1097170910592",
+  appId:"1:1097170910592:web:efafe19f6fc24f40881565"
+};
+const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig);
+const auth=getAuth(app); const db=getDatabase(app);
+
+const $=id=>document.getElementById(id);
+const loginTab=$("loginTab"), signupTab=$("signupTab"), loginAuth=$("loginAuth"), signupAuth=$("signupAuth");
+const authTitle=$("authTitle"), authSubtitle=$("authSubtitle"), authMsg=$("authMsg"), loadingAuth=$("loadingAuth");
+function setAuthMode(mode){
+  const login=mode==='login';
+  loginTab.classList.toggle('active',login); signupTab.classList.toggle('active',!login);
+  loginAuth.style.display=login?'block':'none'; signupAuth.style.display=login?'none':'block';
+  authTitle.textContent=login?'Welcome back':'Create your account';
+  authSubtitle.textContent=login?'Login to continue to the marketplace.':'Create a student account to buy, sell, and showcase your work.';
+  authMsg.textContent='';
+}
+loginTab.onclick=()=>setAuthMode('login'); signupTab.onclick=()=>setAuthMode('signup');
+function wireToggle(inputId,btnId){const input=$(inputId),btn=$(btnId);btn.onclick=()=>{const show=input.type==='password';input.type=show?'text':'password';btn.textContent=show?'Hide':'Show';};}
+wireToggle('loginPassword','toggleLoginPassword'); wireToggle('signupPassword','toggleSignupPassword');
+$('signupPassword').oninput=()=>{const v=$('signupPassword').value;let s='Weak';if(v.length>=8&&/[A-Z]/.test(v)&&/[0-9]/.test(v)&&/[^A-Za-z0-9]/.test(v))s='Strong';else if(v.length>=8&&(/[A-Z]/.test(v)||/[0-9]/.test(v)))s='Medium';$('signupPasswordStrength').textContent=v?'Password strength: '+s:'';$('signupPasswordStrength').className='strength '+s.toLowerCase();};
+
+$('signupBtn').onclick=async()=>{
+  loadingAuth.style.display='block';authMsg.textContent='';
+  const name=$('signupName').value.trim(), phone=$('signupPhone').value.replace(/\D/g,''), email=$('signupEmail').value.trim(), pass=$('signupPassword').value, confirm=$('signupConfirm').value;
+  if(!name||!phone||!email||!pass||!confirm){authMsg.textContent='Please fill all required details.';loadingAuth.style.display='none';return;}
+  if(!/^[6-9]\d{9}$/.test(phone)){authMsg.textContent='Enter a valid 10-digit mobile number.';loadingAuth.style.display='none';return;}
+  if(pass.length<8){authMsg.textContent='Password must be at least 8 characters.';loadingAuth.style.display='none';return;}
+  if(pass!==confirm){authMsg.textContent='Passwords do not match.';loadingAuth.style.display='none';return;}
+  if(!$('signupTerms').checked){authMsg.textContent='Please accept the Terms & Privacy Policy.';loadingAuth.style.display='none';return;}
+  try{
+    const credential=await createUserWithEmailAndPassword(auth,email,pass);
+    await set(ref(db,'users/'+credential.user.uid),{name,phone,role:$('role').value,authType:'email',email,createdAt:Date.now()});
+    try{await sendEmailVerification(credential.user);}catch(_){ }
+    await signOut(auth);
+    setAuthMode('login'); $('loginEmail').value=email; $('loginPassword').value='';
+    authMsg.textContent='Account created. Please verify your email, then login.';
+  }catch(e){authMsg.textContent=e.code==='auth/email-already-in-use'?'This email is already registered. Please login.':'Could not create account. Please check your details.';}
+  loadingAuth.style.display='none';
+};
+
+$('loginBtn').onclick=async()=>{
+  loadingAuth.style.display='block';authMsg.textContent='';
+  const email=$('loginEmail').value.trim(), pass=$('loginPassword').value;
+  if(!email||!pass){authMsg.textContent='Enter your email and password.';loadingAuth.style.display='none';return;}
+  try{
+    await setPersistence(auth,browserLocalPersistence);
+    await signInWithEmailAndPassword(auth,email,pass);
+    location.replace('home.html');
+  }catch(e){authMsg.textContent=(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'||e.code==='auth/user-not-found')?'Email or password is incorrect.':('Unable to login ('+(e.code||'unknown-error')+'). '+(e.message||'Please try again.'));}
+  loadingAuth.style.display='none';
+};
+$('forgotBtn').onclick=async()=>{const email=$('loginEmail').value.trim();if(!email){authMsg.textContent='Enter your email first.';return;}try{await sendPasswordResetEmail(auth,email);authMsg.textContent='Password reset email sent!';}catch(e){authMsg.textContent='Could not send reset email. Check the email address.';}};
+window.openTerms=()=>{const m=$('termsModal');if(m)m.style.display='flex';};
+window.closeTerms=()=>{const m=$('termsModal');if(m)m.style.display='none';};
+
+// If already logged in, never show the login page again.
+(async()=>{try{await setPersistence(auth,browserLocalPersistence);if(typeof auth.authStateReady==='function')await auth.authStateReady();}catch(_){ }
+  if(auth.currentUser) location.replace('home.html');
+  onAuthStateChanged(auth,u=>{if(u&&location.pathname.split('/').pop()==='login.html')location.replace('home.html');});
+})();
+</script></body></html>

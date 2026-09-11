@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Book Exchange - Student Art Hub</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+
+
+<main class="container">
+<section class="category-page category-quick-view"><div class="section-heading"><div><span class="eyebrow">Student Marketplace</span><h2>Book Marketplace</h2><p>Explore student listings available in this section.</p></div><a class="market-btn" href="category.html?type=book">View all →</a></div><div id="hubCategoryFeed" data-category="book" class="market-grid"></div></section>
+
+<section>
+<h2>Book Exchange</h2>
+
+<!-- Seller Upload -->
+<div id="uploadSection" style="display:none;">
+<h3>Upload a Book</h3>
+<input type="text" id="bookName" placeholder="Book Name">
+<input type="text" id="bookDesc" placeholder="Description">
+<input type="number" id="bookPrice" placeholder="Price">
+<input type="file" id="bookImage" accept="image/*">
+<select id="bookClass">
+<option value="">Select Class</option>
+<option value="1">Class 1</option>
+<option value="2">Class 2</option>
+<option value="3">Class 3</option>
+<option value="4">Class 4</option>
+<option value="5">Class 5</option>
+<option value="6">Class 6</option>
+<option value="7">Class 7</option>
+<option value="8">Class 8</option>
+<option value="9">Class 9</option>
+<option value="10">Class 10</option>
+<option value="11">Class 11</option>
+<option value="12">Class 12</option>
+</select>
+<button id="uploadBtn">Upload Book</button>
+</div>
+
+<!-- Search + Filter -->
+<input type="text" id="searchInput" placeholder="Search by name or description">
+<select id="classFilter">
+<option value="">All Classes</option>
+<option value="1">Class 1</option>
+<option value="2">Class 2</option>
+<option value="3">Class 3</option>
+<option value="4">Class 4</option>
+<option value="5">Class 5</option>
+<option value="6">Class 6</option>
+<option value="7">Class 7</option>
+<option value="8">Class 8</option>
+<option value="9">Class 9</option>
+<option value="10">Class 10</option>
+<option value="11">Class 11</option>
+<option value="12">Class 12</option>
+</select>
+
+<div class="listings" id="bookListings"></div>
+</section>
+</main>
+
+<!-- Cart -->
+<div id="cart" style="position:fixed;top:80px;right:20px;width:250px;background:#fff;border:1px solid #ccc;padding:10px;display:none;z-index:1000;">
+<h3>Cart</h3>
+<ul id="cartItems"></ul>
+<strong>Total: ₹<span id="cartTotal">0</span></strong><br><br>
+<button id="checkoutBtn">Checkout</button>
+<button id="closeCart">Close</button>
+</div>
+<button id="openCart" style="position:fixed;top:20px;right:20px;z-index:1000;">🛒 Cart</button>
+
+<footer>
+<div class="container"><p>© 2025 Student Art Hub</p></div>
+</footer>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",
+  authDomain: "art-hub-77eb1.firebaseapp.com",
+  projectId: "art-hub-77eb1",
+  storageBucket: "art-hub-77eb1.firebasestorage.app",
+  messagingSenderId: "1097170910592",
+  appId: "1:1097170910592:web:efafe19f6fc24f40881565"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+let books = [];
+let sellerData = { uid: "", phone: "" };
+
+const uploadSection = document.getElementById("uploadSection");
+const bookListings = document.getElementById("bookListings");
+
+// 🔹 Auth check
+onAuthStateChanged(auth, user => {
+  if (user) {
+    sellerData.uid = user.uid;
+    sellerData.phone = user.phoneNumber || "";
+    uploadSection.style.display = "block";
+  } else {
+    uploadSection.style.display = "none";
+    alert("Please log in first to upload!");
+  }
+});
+
+// 🔹 LOAD BOOKS FROM FIRESTORE
+async function loadBooks() {
+  books = [];
+  const snapshot = await getDocs(collection(db, "books"));
+  snapshot.forEach(doc => {
+    books.push({ id: doc.id, ...doc.data() });  // ID add kiya for delete
+  });
+  renderBooks(books);
+}
+loadBooks();
+
+// 🔹 UPLOAD BOOK
+document.getElementById("uploadBtn").addEventListener("click", async () => {
+  try {
+    const name = bookName.value.trim();
+    const desc = bookDesc.value.trim();
+    const price = Number(bookPrice.value);
+    const cls = bookClass.value;
+    const file = bookImage.files[0];
+
+    if (!name || !price || !cls || !file) {
+      alert("All fields required");
+      return;
+    }
+
+    const storageRef = ref(storage, `books/${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    const imageUrl = await getDownloadURL(storageRef);
+
+    const book = {
+      name,
+      desc,
+      price,
+      class: cls,
+      imageUrl,
+      sellerUid: sellerData.uid,
+      sellerPhone: sellerData.phone,  // Phone add kiya
+      createdAt: Date.now()
+    };
+
+    await addDoc(collection(db, "books"), book);
+    books.push(book);
+    renderBooks(books);
+
+    alert("✅ Book uploaded successfully");
+  } catch (err) {
+    console.error(err);
+    alert("❌ Upload failed");
+  }
+});
+
+// 🔹 RENDER BOOKS
+function renderBooks(list) {
+  bookListings.innerHTML = "";
+  list.forEach((book, i) => {
+    const isOwner = auth.currentUser && auth.currentUser.uid === book.sellerUid;
+    const deleteBtn = isOwner ? `<button onclick="deleteBook('${book.id}')">Delete</button>` : "";
+    const div = document.createElement("article");
+    div.className = "item";
+    div.innerHTML = `
+      <img src="${book.imageUrl}" width="150" style="border-radius:10px;"><br>
+      <h3>${book.name}</h3>
+      <p>${book.desc}</p>
+      <p>Class: ${book.class}</p>
+      <p class="price">₹${book.price}</p>
+      <button onclick="buyBook(${i})">Buy</button>
+      ${deleteBtn}
+    `;
+    bookListings.appendChild(div);
+  });
+}
+
+// 🔹 BUY BOOK (Version 1 se add)
+window.buyBook = function (i) {
+  const book = books[i];
+  const buyerNumber = prompt("Enter WhatsApp number with country code");
+  if (!buyerNumber) return;
+
+  const msg = `Hi, I want to buy your book:
+Title: ${book.name}
+Price: ₹${book.price}
+Buyer: ${buyerNumber}`;
+
+  const waUrl = `https://wa.me/${book.sellerPhone.replace("+", "")}?text=${encodeURIComponent(msg)}`;
+  window.open(waUrl, "_blank");
+};
+
+// 🔹 DELETE BOOK (Version 2 se)
+window.deleteBook = async function (id) {
+  if (confirm("Delete this book?")) {
+    try {
+      await deleteDoc(doc(db, "books", id));
+      loadBooks();  // Reload to update list
+      alert("Book deleted!");
+    } catch (err) {
+      alert("Delete failed");
+    }
+  }
+};
+
+// 🔹 SEARCH + FILTER
+searchInput.addEventListener("input", filterBooks);
+classFilter.addEventListener("change", filterBooks);
+
+function filterBooks() {
+  const q = searchInput.value.toLowerCase();
+  const cls = classFilter.value;
+  renderBooks(
+    books.filter(b =>
+      (b.name.toLowerCase().includes(q) || b.desc.toLowerCase().includes(q)) &&
+      (cls ? b.class === cls : true)
+    )
+  );
+}
+</script>
+
+<script type="module" src="category-feed.js"></script>
+<script src="common-nav.js"></script>
+<script src="hub-enhancements.js"></script>
+<script src="marketplace-v3.js"></script>
+</body>
+</html>

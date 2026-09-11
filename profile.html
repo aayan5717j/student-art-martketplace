@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="module" src="auth-guard.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Profile — Student Art Hub</title><link rel="stylesheet" href="styles.css">
+<style>
+.profile-page{max-width:1050px;margin:0 auto;padding:30px 18px 60px}
+.profile-card{background:var(--paper,#fff);border:1px solid var(--border,#eaded6);border-radius:22px;padding:24px;box-shadow:var(--shadow-soft,0 10px 30px rgba(69,43,31,.06));margin-bottom:18px}
+.profile-head{display:flex;gap:18px;align-items:center}.avatar{width:86px;height:86px;border-radius:22px;object-fit:cover;background:linear-gradient(135deg,#f4e2d5,#fff7f0);display:grid;place-items:center;font-size:34px;color:#9b4a32;font-weight:900;border:1px solid #ead7c9}.profile-card h1,.profile-card h2{margin:0 0 6px;color:#29231f}.profile-card h2{font-size:1.18rem}.muted{color:#756960;font-size:.9rem;line-height:1.55}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form-grid .full{grid-column:1/-1}.profile-card label{font-size:.78rem;font-weight:800;color:#594b44;display:block;margin:0 0 6px}.profile-card input,.profile-card textarea,.profile-card select{width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #ddcec5;border-radius:11px;background:#fff;color:#29231f;font-size:.88rem;outline:none}.profile-card input:focus,.profile-card textarea:focus,.profile-card select:focus{border-color:#c65d3b;box-shadow:0 0 0 3px rgba(198,93,59,.1)}.profile-card input:disabled{background:#f7f2ee;color:#806f65}.artist-box{border-color:#ead7c9;background:linear-gradient(180deg,#fffaf6,#fff)}.artist-badge{display:inline-flex;background:#f4e2d5;color:#91442f;border-radius:999px;padding:6px 10px;font-size:.7rem;font-weight:900;margin-bottom:10px}.profile-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.profile-actions button,.profile-actions .market-btn{border-radius:11px!important}.profile-actions button{background:#c65d3b!important;color:#fff!important;border:0!important;padding:11px 16px!important;font-weight:800!important}.profile-actions button:hover{background:#a94d31!important}.profile-actions .market-btn{background:#fff!important;color:#74402f!important;border:1px solid #d8b9a8!important;padding:10px 14px!important;text-decoration:none!important;font-weight:800!important}.msg{font-size:.8rem;color:#9b4a32;margin:10px 0 0;font-weight:700}.danger-note{color:#b42318}.profile-card>h2+.muted{margin-top:0}.seller-performance{margin-top:16px}.password-row{display:flex;gap:10px;align-items:flex-end}.password-row>input{flex:1}.password-row>button{background:#29231f!important;color:#fff!important;border:0!important;border-radius:11px!important;padding:12px 16px!important;font-weight:800!important;white-space:nowrap}.profile-intro{display:flex;align-items:center;justify-content:space-between;gap:18px}.profile-kicker{color:#9b4a32;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.profile-email{margin:2px 0 0;color:#806f65}.profile-hint{margin-top:16px;padding:12px 14px;border-radius:12px;background:#fff7f0;border:1px solid #efdfd3;color:#6f5c51;font-size:.78rem}.profile-hint b{color:#91442f}
+@media(max-width:650px){.profile-page{padding:18px 12px 44px}.profile-card{padding:18px}.profile-head{align-items:flex-start}.avatar{width:72px;height:72px;border-radius:19px;font-size:28px}.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:auto}.password-row{display:block}.password-row>button{width:100%;margin-top:9px}.profile-intro{align-items:flex-start;flex-direction:column}}
+</style></head>
+<body>
+<main class="profile-page">
+  <section class="profile-card">
+    <div class="profile-head"><div id="avatar" class="avatar">N</div><div><span class="profile-kicker" id="roleBadge">Student account</span><h1 id="profileTitle">My Profile</h1><p class="profile-email" id="profileEmail"></p></div></div>
+  </section>
+
+  <section class="profile-card">
+    <div class="profile-intro"><div><h2>Profile details</h2><p class="muted">Keep your marketplace identity fresh and easy for other students to trust.</p></div></div>
+    <div class="form-grid">
+      <div><label>Name</label><input id="profileName" type="text" placeholder="Your name"></div>
+      <div><label>Role</label><input id="profileRole" type="text" disabled></div>
+      <div class="full"><label>Address</label><textarea id="profileAddress" rows="2" placeholder="Area / locality"></textarea></div>
+      <div class="full"><label>Bio</label><textarea id="profileBio" rows="3" placeholder="Tell other students a little about you"></textarea></div>
+      <div id="waWrap"><label>WhatsApp</label><input id="profileWhatsapp" type="text" placeholder="91XXXXXXXXXX"></div>
+    </div>
+    <div class="profile-actions"><button id="saveProfileBtn">Save Profile</button><a class="market-btn" href="home.html">Back Home</a></div>
+    <p id="profileMsg" class="msg"></p>
+  </section>
+
+  <section id="artistSection" class="profile-card artist-box" style="display:none">
+    <span class="artist-badge">🎨 Artist Profile</span>
+    <h2>Create your Artist Profile</h2>
+    <p class="muted">Your artist profile will appear inside <b>Custom Sketches</b>. Your Artist Showcase uploads will be shown on your profile.</p>
+    <div class="form-grid">
+      <div><label>Artist name</label><input id="artistName" placeholder="e.g. Priya Art Studio"></div>
+      <div><label>Speciality</label><input id="artistSpeciality" placeholder="Pencil portraits, charcoal, etc."></div>
+      <div class="full"><label>Artist bio</label><textarea id="artistBio" rows="4" placeholder="What kind of sketches do you make?"></textarea></div>
+      <div class="full"><label>Artist profile photo (optional)</label><input id="artistPhoto" type="file" accept="image/*"></div>
+    </div>
+    <div class="profile-actions"><button id="saveArtistBtn">Save Artist Profile</button><a class="market-btn" href="sketches.html">View Custom Sketches</a></div>
+    <p id="artistMsg" class="msg"></p>
+  </section>
+
+  <section id="sellerSection" class="profile-card" style="display:none"><h2>Seller performance</h2><div class="dashboard-stats"><div class="dashboard-stat"><small>Total listing value</small><strong id="totalEarnings">₹0</strong></div><div class="dashboard-stat"><small>Live listings</small><strong id="liveListings">0</strong></div></div></section>
+
+  <section class="profile-card"><h2>Account security</h2><p class="muted">Use a strong password and keep your account protected.</p><div class="password-row"><input id="newPassword" type="password" placeholder="New password"><button id="changePassBtn">Change Password</button></div><p id="passMsg" class="msg"></p><div class="profile-hint"><b>Tip:</b> Never share your password with another person.</div></section>
+</main>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth,onAuthStateChanged,updatePassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getDatabase,ref,get,update } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+const firebaseConfig={apiKey:"AIzaSyBxD8SLW9z8ndgAJprcGolqivlNUZVYZxc",authDomain:"art-hub-77eb1.firebaseapp.com",databaseURL:"https://art-hub-77eb1-default-rtdb.firebaseio.com",projectId:"art-hub-77eb1"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app); const $=id=>document.getElementById(id);
+let current=null;
+async function load(u){current=u; const s=await get(ref(db,"users/"+u.uid)),d=s.val()||{}; $("profileEmail").textContent=u.email||"Phone Login"; $("profileName").value=d.name||""; $("profileRole").value=d.role||"buyer"; $("profileAddress").value=d.address||""; $("profileBio").value=d.bio||""; $("profileWhatsapp").value=d.whatsapp||""; $("waWrap").style.display=d.role==="seller"?"block":"none"; $("roleBadge").textContent=d.role==="seller"?"Seller":"Student"; $("avatar").textContent=(d.name||"N").trim().charAt(0).toUpperCase();
+if(d.role==="seller"){$("artistSection").style.display="block"; const a=d.artistProfile||{}; $("artistName").value=a.name||d.name||""; $("artistSpeciality").value=a.speciality||""; $("artistBio").value=a.bio||d.bio||""; loadStats(u.uid);}}
+$("saveProfileBtn").onclick=async()=>{await update(ref(db,"users/"+current.uid),{name:$("profileName").value.trim(),address:$("profileAddress").value.trim(),bio:$("profileBio").value.trim(),whatsapp:$("profileWhatsapp").value.trim()||null});$("profileMsg").textContent="Profile saved successfully.";$("avatar").textContent=($("profileName").value.trim()||"N").charAt(0).toUpperCase();};
+$("saveArtistBtn").onclick=async()=>{if(!current)return; const name=$("artistName").value.trim()||$("profileName").value.trim(); if(!name){$("artistMsg").textContent="Please enter an artist name.";return;} let photoUrl=null; const file=$("artistPhoto").files[0]; if(file){$("artistMsg").textContent="Uploading profile photo...";const fd=new FormData();fd.append("file",file);fd.append("upload_preset","student_art_hub");try{const r=await fetch("https://api.cloudinary.com/v1_1/dmq5tdywr/image/upload",{method:"POST",body:fd});const d=await r.json();photoUrl=d.secure_url||null;}catch(e){photoUrl=null;}} const old=(await get(ref(db,"users/"+current.uid))).val()?.artistProfile||{}; await update(ref(db,"users/"+current.uid),{artistProfile:{enabled:true,name,speciality:$("artistSpeciality").value.trim(),bio:$("artistBio").value.trim(),photoUrl:photoUrl||old.photoUrl||null}});$("artistMsg").textContent="Artist profile created/updated. It is now visible in Custom Sketches.";};
+async function loadStats(uid){const s=await get(ref(db,"listings")),arr=Object.values(s.val()||{}).filter(x=>x.sellerId===uid);$("totalEarnings").textContent="₹"+arr.reduce((n,x)=>n+Number(x.price||0),0);$("liveListings").textContent=arr.length;$("sellerSection").style.display="block";}
+$("changePassBtn").onclick=async()=>{try{await updatePassword(auth.currentUser,$("newPassword").value);$("passMsg").textContent="Password changed.";}catch(e){$("passMsg").textContent="Please login again to change your password.";}};
+onAuthStateChanged(auth,u=>{if(!u)location.href="home.html";else load(u);});
+</script><script src="common-nav.js"></script>
+<script src="hub-enhancements.js"></script>
+<script src="marketplace-v3.js"></script>
+</body></html>
